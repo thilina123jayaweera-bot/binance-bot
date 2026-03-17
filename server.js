@@ -44,6 +44,12 @@ function binanceReq(base, path, method='GET', params={}, signed=false) {
   });
 }
 
+app.get('/api/ip', (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || 
+              req.socket.remoteAddress;
+  res.json({ ip: ip });
+});
+
 app.get('/', (req, res) => res.json({
   status: 'online',
   server: 'Binance AI Bot',
