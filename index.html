@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="AutoBot AI"/>
-<title>Binance AutoBot — Max Return AI</title>
+<title>Binance AutoBot — Real Trading</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow:wght@500;700;800;900&display=swap');
 :root{
@@ -30,10 +30,8 @@ input,button{font-family:var(--fn)}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes glow{0%,100%{box-shadow:0 0 12px #f0b90b44}50%{box-shadow:0 0 28px #f0b90baa}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes scan{0%{top:-100%}100%{top:100%}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes countup{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
-@keyframes progressbar{from{width:0}to{width:100%}}
 @keyframes ripple{0%{transform:scale(0);opacity:.8}100%{transform:scale(3);opacity:0}}
 
 /* LAYOUT */
@@ -52,7 +50,6 @@ input,button{font-family:var(--fn)}
 .pill{display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:16px;border:1px solid var(--bd);background:var(--s1);cursor:pointer}
 .pill-dot{width:6px;height:6px;border-radius:50%}
 .pill-txt{font-family:var(--fm);font-size:8px}
-/* TICKER */
 .tkr{overflow:hidden;height:23px;background:var(--s1);display:flex;align-items:center;border-bottom:1px solid var(--bd)}
 .tkr-tr{display:flex;white-space:nowrap;animation:ticker 32s linear infinite}
 .ti{display:inline-flex;align-items:center;gap:5px;padding:0 14px;border-right:1px solid var(--bd)}
@@ -71,21 +68,28 @@ input,button{font-family:var(--fn)}
 #scr-chat{display:none;flex-direction:column;height:calc(100vh - 130px)}
 #scr-chat.on{display:flex}
 
-/* SECTION LABEL */
 .slbl{font-family:var(--fm);font-size:8px;color:var(--mu);letter-spacing:2.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .slbl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bd2),transparent)}
 
-/* ═══ BOT BRAIN SCREEN ═══ */
-.brain-card{background:linear-gradient(135deg,#0d0a00,#000d18);border:1px solid rgba(240,185,11,.3);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
-.brain-card::before{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#f0b90b0e,transparent 70%)}
-.brain-status{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.brain-dot{width:10px;height:10px;border-radius:50%;background:var(--mu);flex-shrink:0}
-.brain-dot.active{background:var(--gn);animation:pulse 1.5s infinite}
-.brain-dot.thinking{background:var(--g);animation:blink .7s infinite}
-.brain-label{font-family:var(--fm);font-size:9px;letter-spacing:1.5px}
-.brain-sublabel{font-family:var(--fm);font-size:8px;color:var(--mu);margin-top:1px}
+/* BALANCE CARD */
+.bal-card{background:linear-gradient(135deg,#0d0a00,#000d18);border:1px solid rgba(240,185,11,.3);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.bal-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#f0b90b12,transparent 70%);pointer-events:none}
+.bal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.bal-left{}
+.bal-lbl{font-family:var(--fm);font-size:8px;color:var(--mu);letter-spacing:2px;margin-bottom:5px}
+.bal-val{font-size:28px;font-weight:900;color:var(--g);line-height:1}
+.bal-sub{font-family:var(--fm);font-size:9px;color:var(--mu2);margin-top:5px}
+.bal-right{text-align:right}
+.conn-badge{font-family:var(--fm);font-size:8px;padding:4px 10px;border-radius:20px;border:1px solid}
+.bal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.bstat{background:rgba(0,0,0,.35);border-radius:8px;padding:8px 9px;border:1px solid rgba(255,255,255,.04)}
+.bstat-l{font-family:var(--fm);font-size:7px;color:var(--mu);margin-bottom:3px}
+.bstat-v{font-size:14px;font-weight:800}
+/* refresh btn */
+.refresh-btn{padding:5px 10px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mu2);font-family:var(--fm);font-size:9px;cursor:pointer;margin-top:10px}
+.refresh-btn:active{background:var(--s2)}
 
-/* PERIOD SELECTOR */
+/* PERIOD + CAPITAL + RISK */
 .period-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
 .pgrid-item{padding:10px 6px;border-radius:10px;border:1px solid var(--bd);background:var(--s2);text-align:center;cursor:pointer;transition:.12s;position:relative}
 .pgrid-item.on{border-color:var(--g);background:rgba(240,185,11,.1)}
@@ -93,14 +97,11 @@ input,button{font-family:var(--fn)}
 .pg-time{font-size:14px;font-weight:900;color:var(--tx)}
 .pg-ret{font-family:var(--fm);font-size:9px;margin-top:3px}
 .pg-tok{font-family:var(--fm);font-size:7px;color:var(--mu);margin-top:2px}
-/* extra periods */
 .period-more{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
 .pm-item{padding:8px 4px;border-radius:9px;border:1px solid var(--bd);background:var(--s2);text-align:center;cursor:pointer;transition:.12s}
 .pm-item.on{border-color:var(--g);background:rgba(240,185,11,.08);color:var(--g)}
 .pm-time{font-family:var(--fm);font-size:11px;font-weight:700}
 .pm-ret{font-family:var(--fm);font-size:8px;color:var(--mu);margin-top:2px}
-
-/* CAPITAL SELECTOR */
 .capital-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
 .cap-btn{padding:9px 5px;border-radius:9px;border:1px solid var(--bd);background:var(--s2);color:var(--tx);font-family:var(--fm);font-size:11px;cursor:pointer;text-align:center;transition:.12s}
 .cap-btn.on{border-color:var(--g);background:rgba(240,185,11,.1);color:var(--g)}
@@ -109,8 +110,6 @@ input,button{font-family:var(--fn)}
 .cap-custom input:focus{border-color:var(--g)}
 .cap-custom input::placeholder{color:var(--mu)}
 .cap-custom span{font-family:var(--fm);font-size:12px;color:var(--mu)}
-
-/* RISK SELECTOR */
 .risk-row{display:flex;gap:7px;margin-bottom:14px}
 .risk-btn{flex:1;padding:10px 5px;border-radius:10px;border:2px solid var(--bd);background:transparent;cursor:pointer;text-align:center;transition:.15s}
 .risk-btn .ri{font-size:18px;margin-bottom:3px}
@@ -122,9 +121,7 @@ input,button{font-family:var(--fn)}
 .risk-btn.on-bal .rn{color:var(--g)}
 .risk-btn.on-agg{border-color:var(--rd);background:rgba(255,61,90,.07)}
 .risk-btn.on-agg .rn{color:var(--rd)}
-.risk-btn:not([class*="on-"]) .rn,.risk-btn:not([class*="on-"]) .rs{color:var(--mu)}
-
-/* STRATEGY DISPLAY */
+.risk-btn:not([class*="on-"]) .rn{color:var(--mu)}
 .strat-box{background:var(--s2);border:1px solid var(--bd2);border-radius:12px;padding:12px;margin-bottom:14px}
 .strat-title{font-family:var(--fm);font-size:8px;color:var(--mu);letter-spacing:2px;margin-bottom:9px}
 .strat-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -133,13 +130,11 @@ input,button{font-family:var(--fn)}
 .strat-opt-name{font-size:12px;font-weight:800;margin-bottom:2px}
 .strat-opt-desc{font-family:var(--fm);font-size:8px;color:var(--mu2);line-height:1.4}
 .strat-opt-tag{font-family:var(--fm);font-size:7px;margin-top:5px;padding:2px 6px;border-radius:4px;display:inline-block}
-
-/* LAUNCH BUTTON */
 .launch-btn{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.3px;position:relative;overflow:hidden;margin-bottom:10px}
 .launch-btn:active{opacity:.9}
-.launch-btn .ripple{position:absolute;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.4);animation:ripple .6s ease-out forwards}
+.launch-btn:disabled{background:var(--bd);color:var(--mu);cursor:not-allowed}
 
-/* ═══ THINKING / SCAN ANIMATION ═══ */
+/* THINKING */
 .thinking-overlay{position:fixed;inset:0;background:rgba(4,5,10,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:430px;margin:0 auto}
 .think-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--g),var(--g2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;animation:glow 1.5s infinite}
 .think-title{font-size:20px;font-weight:900;color:var(--g);margin-bottom:8px;text-align:center}
@@ -153,20 +148,17 @@ input,button{font-family:var(--fn)}
 .think-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--gn));border-radius:2px;transition:width .4s ease}
 .think-pct{font-family:var(--fm);font-size:11px;color:var(--g)}
 
-/* ═══ RESULTS CARD ═══ */
+/* RESULT */
 .result-card{background:linear-gradient(135deg,#001a0d,#001020);border:1px solid rgba(0,229,160,.3);border-radius:16px;padding:16px;margin-bottom:12px;animation:countup .4s ease}
 .rc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
 .rc-title{font-size:18px;font-weight:900;color:var(--gn)}
 .rc-sub{font-family:var(--fm);font-size:8px;color:var(--mu2);margin-top:3px}
-.rc-score{text-align:right}
 .rc-score-val{font-family:var(--fm);font-size:22px;font-weight:700;color:var(--g)}
 .rc-score-lbl{font-family:var(--fm);font-size:7px;color:var(--mu)}
 .rc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
 .rcs{background:rgba(0,0,0,.4);border-radius:9px;padding:9px 10px;border:1px solid rgba(255,255,255,.04)}
 .rcs-l{font-family:var(--fm);font-size:7px;color:var(--mu);margin-bottom:3px}
 .rcs-v{font-size:16px;font-weight:900}
-
-/* BOT TOKEN ALLOCATION */
 .alloc-table{margin-bottom:14px}
 .alloc-row{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:6px;border:1px solid var(--bd)}
 .alloc-row.top{border-color:rgba(240,185,11,.3);background:rgba(240,185,11,.04)}
@@ -180,23 +172,29 @@ input,button{font-family:var(--fn)}
 .ar-ret{font-family:var(--fm);font-size:9px;margin-top:2px}
 .ar-pft{font-family:var(--fm);font-size:10px;font-weight:700;margin-top:2px}
 .ar-dir{font-family:var(--fm);font-size:7px;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block}
-/* allocation bar */
 .ar-bar{height:2px;border-radius:1px;margin-top:5px;transition:width .6s ease}
-
-/* PROFIT SUMMARY BOX */
 .profit-box{background:rgba(0,0,0,.5);border:1px solid rgba(0,229,160,.2);border-radius:12px;padding:13px;margin-bottom:13px}
 .pb-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .pb-row:last-child{border:none;margin-top:4px}
 .pb-l{font-family:var(--fm);font-size:9px;color:var(--mu2)}
 .pb-v{font-family:var(--fm);font-size:11px;font-weight:700}
-
-/* EXECUTE BUTTONS */
 .exec-row{display:flex;gap:8px;margin-bottom:10px}
-.exec-all{flex:2;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:14px;font-weight:900;cursor:pointer}
+.exec-all{flex:2;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:14px;font-weight:900;cursor:pointer;transition:.15s}
+.exec-all:disabled{background:var(--bd);color:var(--mu);cursor:not-allowed}
 .exec-top{flex:1;padding:13px;border-radius:12px;border:1px solid var(--g);background:rgba(240,185,11,.08);color:var(--g);font-size:13px;font-weight:700;cursor:pointer}
 .btn-out{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:transparent;color:var(--mu2);font-size:12px;cursor:pointer;margin-bottom:8px}
 
-/* ACTIVE BOTS SCREEN */
+/* ORDER STATUS */
+.order-status{background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:13px;margin-bottom:12px}
+.os-title{font-family:var(--fm);font-size:8px;color:var(--mu);letter-spacing:2px;margin-bottom:10px}
+.os-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.os-item:last-child{border:none}
+.os-ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.os-sym{font-size:12px;font-weight:800;flex:1}
+.os-status{font-family:var(--fm);font-size:9px}
+.os-err{font-family:var(--fm);font-size:8px;color:var(--rd);margin-top:2px}
+
+/* ACTIVE BOTS */
 .bot-run-card{background:var(--s1);border:1px solid rgba(0,229,160,.2);border-radius:14px;padding:13px;margin-bottom:9px;position:relative;overflow:hidden}
 .bot-run-card.paused{border-color:var(--bd);opacity:.75}
 .brc-stripe{position:absolute;left:0;top:0;bottom:0;width:3px}
@@ -210,17 +208,14 @@ input,button{font-family:var(--fn)}
 .bm{background:rgba(0,0,0,.35);border-radius:7px;padding:7px 6px}
 .bml{font-family:var(--fm);font-size:7px;color:var(--mu);margin-bottom:2px}
 .bmv{font-family:var(--fm);font-size:11px;font-weight:700}
-/* token allocation mini-list */
 .brc-tokens{display:flex;gap:5px;padding-left:10px;margin-bottom:10px;flex-wrap:wrap}
 .brc-tok{padding:3px 8px;border-radius:6px;font-family:var(--fm);font-size:9px;border:1px solid}
-/* progress */
 .brc-progress{padding-left:10px;margin-bottom:10px}
 .prog{height:3px;background:var(--bd);border-radius:2px}
 .progfill{height:100%;border-radius:2px;transition:width .8s ease}
 .brc-btns{display:flex;gap:6px;padding-left:10px}
 .bb{padding:8px 12px;border-radius:8px;border:1px solid;font-family:var(--fm);font-size:10px;cursor:pointer}
 .bb-pause{background:rgba(240,185,11,.07);border-color:rgba(240,185,11,.3);color:var(--g)}
-.bb-resume{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.3);color:var(--gn)}
 .bb-stop{background:rgba(255,61,90,.07);border-color:rgba(255,61,90,.3);color:var(--rd)}
 .bb-detail{background:rgba(45,156,219,.07);border-color:rgba(45,156,219,.3);color:var(--bl)}
 
@@ -235,6 +230,7 @@ input,button{font-family:var(--fn)}
 .fin:focus{border-color:var(--g)}.fin::placeholder{color:var(--mu)}
 .warn{background:#120800;border:1px solid rgba(240,185,11,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-family:var(--fm);font-size:10px;color:rgba(240,185,11,.6);line-height:1.6}
 .btn-g{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px}
+.btn-g:disabled{background:var(--bd);color:var(--mu);cursor:not-allowed}
 
 /* CHAT */
 .cmsgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:9px}
@@ -255,7 +251,6 @@ input,button{font-family:var(--fn)}
 .csnd:disabled{background:var(--bd);color:var(--mu)}
 .qrow{padding:5px 14px;display:flex;gap:6px;overflow-x:auto}
 .qc{flex-shrink:0;padding:5px 11px;border-radius:16px;border:1px solid var(--bd);background:var(--s2);color:var(--g);font-family:var(--fm);font-size:9px;cursor:pointer;white-space:nowrap}
-/* chips */
 .chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
 .chip{flex-shrink:0;padding:5px 12px;border-radius:16px;border:1px solid var(--bd);background:transparent;color:var(--mu);font-family:var(--fm);font-size:9px;cursor:pointer;white-space:nowrap;transition:.12s}
 .chip.on{border-color:var(--g);background:rgba(240,185,11,.1);color:var(--g)}
@@ -263,15 +258,13 @@ input,button{font-family:var(--fn)}
 </head>
 <body>
 <div id="app">
-
-<!-- HEADER -->
 <div id="hdr">
   <div class="hdr-top">
     <div class="logo">
       <div class="logo-ico">⬡</div>
       <div>
         <div class="logo-txt">AUTOBOT AI</div>
-        <div class="logo-sub" style="font-family:'Space Mono',monospace">MAX RETURN · AUTO SELECT · AUTO EXECUTE</div>
+        <div class="logo-sub" style="font-family:'Space Mono',monospace">REAL TRADING · AUTO SELECT · LIVE BALANCE</div>
       </div>
     </div>
     <div class="hdr-pills">
@@ -288,46 +281,34 @@ input,button{font-family:var(--fn)}
   <div class="tkr"><div class="tkr-tr" id="ticker"></div></div>
 </div>
 
-<!-- CONTENT -->
 <div id="content">
 
-  <!-- ═══ BOT BRAIN ═══ -->
+  <!-- BOT SCREEN -->
   <div id="scr-bot" class="scr on">
-
-    <!-- Status -->
-    <div class="brain-card">
-      <div class="brain-status">
-        <div class="brain-dot" id="brain-dot"></div>
-        <div>
-          <div class="brain-label" id="brain-label" style="color:var(--mu)">BOT IDLE</div>
-          <div class="brain-sublabel" id="brain-sub">Configure period & capital below, then launch</div>
+    <!-- BALANCE CARD -->
+    <div class="bal-card">
+      <div class="bal-top">
+        <div class="bal-left">
+          <div class="bal-lbl">BINANCE BALANCE</div>
+          <div class="bal-val" id="bal-val">$0.00</div>
+          <div class="bal-sub" id="bal-sub">Connect API to see real balance</div>
+        </div>
+        <div class="bal-right">
+          <div class="conn-badge" id="conn-badge" style="border-color:var(--mu);color:var(--mu)">DEMO</div>
+          <button class="refresh-btn" onclick="fetchBalance()" style="margin-top:8px">↻ Refresh</button>
         </div>
       </div>
-      <!-- Live stats when running -->
-      <div id="live-stats" style="display:none">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-          <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:8px 9px;border:1px solid rgba(255,255,255,.04)">
-            <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--mu);margin-bottom:3px">TOTAL P&L</div>
-            <div style="font-size:15px;font-weight:900" id="ls-pnl" class="up">+$0.00</div>
-          </div>
-          <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:8px 9px;border:1px solid rgba(255,255,255,.04)">
-            <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--mu);margin-bottom:3px">ACTIVE POS.</div>
-            <div style="font-size:15px;font-weight:900;color:var(--g)" id="ls-pos">0</div>
-          </div>
-          <div style="background:rgba(0,0,0,.3);border-radius:8px;padding:8px 9px;border:1px solid rgba(255,255,255,.04)">
-            <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--mu);margin-bottom:3px">WIN RATE</div>
-            <div style="font-size:15px;font-weight:900;color:var(--g)" id="ls-wr">0%</div>
-          </div>
-        </div>
+      <div class="bal-stats">
+        <div class="bstat"><div class="bstat-l">SPOT USDT</div><div class="bstat-v up" id="spot-bal">$0</div></div>
+        <div class="bstat"><div class="bstat-l">OPEN ORDERS</div><div class="bstat-v" style="color:var(--g)" id="open-ord">0</div></div>
+        <div class="bstat"><div class="bstat-l">TODAY P&L</div><div class="bstat-v up" id="day-pnl">$0.00</div></div>
       </div>
     </div>
 
-    <!-- STEP 1: PERIOD -->
     <div class="slbl">STEP 1 — SELECT TARGET PERIOD</div>
     <div class="period-grid" id="period-grid"></div>
     <div class="period-more" id="period-more"></div>
 
-    <!-- STEP 2: CAPITAL -->
     <div class="slbl">STEP 2 — TOTAL CAPITAL (USDT)</div>
     <div class="capital-row">
       <button class="cap-btn" onclick="setCap(100,this)">$100</button>
@@ -340,66 +321,59 @@ input,button{font-family:var(--fn)}
       <span>USDT total</span>
     </div>
 
-    <!-- STEP 3: RISK -->
     <div class="slbl">STEP 3 — RISK PROFILE</div>
     <div class="risk-row">
       <button class="risk-btn" id="rb-safe" onclick="setRisk('safe')">
         <div class="ri">🛡️</div><div class="rn">SAFE</div>
-        <div class="rs">Top 3–4 tokens<br/>1–3× leverage<br/>2% SL</div>
+        <div class="rs">Top 3–4<br/>1–3× lev<br/>2% SL</div>
       </button>
       <button class="risk-btn on-bal" id="rb-bal" onclick="setRisk('balanced')">
         <div class="ri">⚖️</div><div class="rn">BALANCED</div>
-        <div class="rs">Top 5–6 tokens<br/>3–5× leverage<br/>3% SL</div>
+        <div class="rs">Top 5–6<br/>3–5× lev<br/>3% SL</div>
       </button>
       <button class="risk-btn" id="rb-agg" onclick="setRisk('aggressive')">
         <div class="ri">🚀</div><div class="rn">MAX RETURN</div>
-        <div class="rs">Top 8 tokens<br/>5–10× leverage<br/>5% SL</div>
+        <div class="rs">Top 8<br/>5–10× lev<br/>5% SL</div>
       </button>
     </div>
 
-    <!-- STEP 4: STRATEGY -->
     <div class="slbl">STEP 4 — AI STRATEGY</div>
     <div class="strat-box">
       <div class="strat-title">HOW THE BOT PICKS TOKENS</div>
       <div class="strat-opts">
-        <div class="strat-opt on" id="so-maxret" onclick="setStrat('maxret',this)">
+        <div class="strat-opt on" onclick="setStrat('maxret',this)">
           <div class="strat-opt-name">⬡ Max Return</div>
-          <div class="strat-opt-desc">Rank all 19 tokens by period return × AI score. Pick the highest.</div>
+          <div class="strat-opt-desc">Rank by period return × AI score</div>
           <span class="strat-opt-tag" style="background:rgba(240,185,11,.12);color:var(--g)">DEFAULT</span>
         </div>
-        <div class="strat-opt" id="so-sharpe" onclick="setStrat('sharpe',this)">
+        <div class="strat-opt" onclick="setStrat('sharpe',this)">
           <div class="strat-opt-name">📐 Risk-Adjusted</div>
-          <div class="strat-opt-desc">Maximize return per unit of risk. Sharpe-like scoring.</div>
+          <div class="strat-opt-desc">Maximize return per unit of risk</div>
           <span class="strat-opt-tag" style="background:rgba(0,229,160,.1);color:var(--gn)">SMART</span>
         </div>
-        <div class="strat-opt" id="so-momentum" onclick="setStrat('momentum',this)">
+        <div class="strat-opt" onclick="setStrat('momentum',this)">
           <div class="strat-opt-name">⚡ Momentum</div>
-          <div class="strat-opt-desc">RSI oversold + high OI + rising volume = buy signal.</div>
+          <div class="strat-opt-desc">RSI oversold + high OI + volume</div>
           <span class="strat-opt-tag" style="background:rgba(45,156,219,.1);color:var(--bl)">TREND</span>
         </div>
-        <div class="strat-opt" id="so-diversify" onclick="setStrat('diversify',this)">
+        <div class="strat-opt" onclick="setStrat('diversify',this)">
           <div class="strat-opt-name">🌐 Diversified</div>
-          <div class="strat-opt-desc">Spread across all categories: L1, L2, DeFi, AI, RWA.</div>
+          <div class="strat-opt-desc">Spread across L1, L2, DeFi, AI, RWA</div>
           <span class="strat-opt-tag" style="background:rgba(167,139,250,.1);color:var(--pu)">SAFE</span>
         </div>
       </div>
     </div>
 
-    <!-- LAUNCH -->
     <button class="launch-btn" id="launch-btn" onclick="launchBot()">
       ⬡ ANALYZE & AUTO-SELECT BEST TRADES
     </button>
-    <div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--mu);line-height:1.6">
-      AI scans all 19 tokens · picks top performers · calculates optimal allocation<br/>
-      ⚠️ Demo mode. Connect API in 🔗 tab for real execution.
+    <div id="bot-mode-info" style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--mu);line-height:1.6;margin-bottom:10px">
+      Connect API in 🔗 tab to enable real trading
     </div>
-
-    <!-- RESULT (shown after analysis) -->
     <div id="bot-result" style="display:none;margin-top:16px"></div>
-
   </div>
 
-  <!-- ═══ ACTIVE BOTS ═══ -->
+  <!-- ACTIVE BOTS -->
   <div id="scr-active" class="scr">
     <div class="slbl">⚙ RUNNING BOTS</div>
     <div id="active-list"></div>
@@ -407,7 +381,7 @@ input,button{font-family:var(--fn)}
     <div id="completed-list"></div>
   </div>
 
-  <!-- ═══ HEATMAP ═══ -->
+  <!-- HEATMAP -->
   <div id="scr-heat" class="scr">
     <div class="slbl">🌡 LIVE HEATMAP</div>
     <div class="chips" id="heat-chips">
@@ -418,47 +392,49 @@ input,button{font-family:var(--fn)}
     <div class="hmg" id="heatmap"></div>
   </div>
 
-  <!-- ═══ CONNECT ═══ -->
+  <!-- CONNECT -->
   <div id="scr-con" class="scr">
     <div style="background:linear-gradient(135deg,#0a0d00,#00101a);border:1px solid rgba(240,185,11,.3);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
       <div style="font-size:34px;margin-bottom:8px">🔗</div>
       <div style="font-size:18px;font-weight:900;color:var(--g);margin-bottom:4px">Connect Binance</div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--mu2);line-height:1.6">Real orders · Live P&L · Auto-execution</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--mu2);line-height:1.6">Real balance · Real orders · Live P&L</div>
     </div>
-    <div class="warn">⚠️ Enable ONLY: Read Info + Spot + Futures. NEVER enable Withdrawals. Use backend server for production.</div>
-    <div class="slbl">BINANCE API SETUP</div>
-    <div style="margin-bottom:12px">
-      <div style="display:flex;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:6px"><div style="width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">1</div><div style="font-size:11px;color:var(--mu2);line-height:1.5"><b style="color:var(--g)">binance.com</b> → Login → Avatar → API Management</div></div>
-      <div style="display:flex;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:6px"><div style="width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">2</div><div style="font-size:11px;color:var(--mu2);line-height:1.5">Create API → System Generated → Name: AutoBot</div></div>
-      <div style="display:flex;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:6px"><div style="width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">3</div><div style="font-size:11px;color:var(--mu2);line-height:1.5">Enable: ✅ Read ✅ Spot ✅ Futures &nbsp; ❌ NO Withdrawals</div></div>
-      <div style="display:flex;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:10px"><div style="width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--g2));color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">4</div><div style="font-size:11px;color:var(--mu2);line-height:1.5">Paste API Key + Secret below → Connect</div></div>
-    </div>
+    <div class="warn">⚠️ NEVER enable Withdrawals on your API key. Enable only: Read + Spot + Futures.</div>
+    <div class="slbl">YOUR RAILWAY BACKEND</div>
+    <input class="fin" id="in-url" placeholder="https://binance-bot-production-01e0.up.railway.app" style="font-size:11px"/>
+    <button class="btn-g" id="test-btn" onclick="testBackend()">🔍 TEST BACKEND CONNECTION</button>
+    <div id="test-result" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--mu);text-align:center;margin-bottom:12px;min-height:16px"></div>
+
+    <div class="slbl">BINANCE API KEYS</div>
     <input class="fin" id="in-key" type="password" placeholder="API Key..."/>
     <input class="fin" id="in-sec" type="password" placeholder="Secret Key..."/>
-    <input class="fin" id="in-url" placeholder="Backend URL (Railway.app — required for real execution)" style="font-size:11px"/>
-    <button class="btn-g" onclick="doConnect()">🔗 CONNECT TO BINANCE</button>
+    <button class="btn-g" id="conn-btn" onclick="doConnect()">🔗 CONNECT & FETCH BALANCE</button>
     <div id="conn-msg" style="text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--mu);margin-top:7px;min-height:16px"></div>
+
+    <!-- Live balance preview -->
+    <div id="live-preview" style="display:none;margin-top:14px">
+      <div class="slbl">LIVE ACCOUNT DATA</div>
+      <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:13px" id="live-preview-body"></div>
+    </div>
   </div>
 
-  <!-- ═══ CHAT ═══ -->
+  <!-- CHAT -->
   <div id="scr-chat">
     <div class="cmsgs" id="cmsgs"></div>
     <div class="qrow" id="qrow">
-      <button class="qc" onclick="sq(this)">Best 12H strategy now?</button>
-      <button class="qc" onclick="sq(this)">Max return for $500 in 24H?</button>
+      <button class="qc" onclick="sq(this)">Best 12H strategy?</button>
+      <button class="qc" onclick="sq(this)">Max return $500 24H?</button>
       <button class="qc" onclick="sq(this)">Safest 3% 8H setup?</button>
-      <button class="qc" onclick="sq(this)">Which 3 tokens to hold 7D?</button>
-      <button class="qc" onclick="sq(this)">Build aggressive $1K basket</button>
+      <button class="qc" onclick="sq(this)">Top 3 tokens 7D?</button>
+      <button class="qc" onclick="sq(this)">Aggressive $1K basket?</button>
     </div>
     <div class="cbar">
       <input class="cin" id="chat-in" placeholder="Ask for strategy, analysis, token picks..." onkeydown="if(event.key==='Enter')sendChat()"/>
       <button class="csnd" id="chat-snd" onclick="sendChat()">▶</button>
     </div>
   </div>
-
 </div>
 
-<!-- NAV -->
 <div id="nav">
   <button class="nb on" id="nb-bot" onclick="goTab('bot')"><span class="ni">⬡</span><span class="nl">BOT</span></button>
   <button class="nb" id="nb-active" onclick="goTab('active')"><span class="ni">⚙</span><span class="nl">ACTIVE</span></button>
@@ -466,12 +442,13 @@ input,button{font-family:var(--fn)}
   <button class="nb" id="nb-con" onclick="goTab('con')"><span class="ni">🔗</span><span class="nl">CONNECT</span></button>
   <button class="nb" id="nb-chat" onclick="goTab('chat')"><span class="ni">⬡</span><span class="nl">AI BOT</span></button>
 </div>
+</div>
 
 <!-- THINKING OVERLAY -->
 <div id="thinking" class="thinking-overlay" style="display:none">
   <div class="think-logo">⬡</div>
   <div class="think-title" id="think-title">AI Analyzing Market</div>
-  <div class="think-sub" id="think-sub">Scanning all 19 tokens for best<br/>opportunities in your target period</div>
+  <div class="think-sub" id="think-sub">Scanning all 19 tokens</div>
   <div class="think-steps" id="think-steps"></div>
   <div class="think-bar"><div class="think-fill" id="think-fill" style="width:0%"></div></div>
   <div class="think-pct" id="think-pct">0%</div>
@@ -480,63 +457,44 @@ input,button{font-family:var(--fn)}
 <script>
 // ── TOKEN DATA ────────────────────────────────────────────────────────────────
 const TK=[
-  {s:'BTC',n:'Bitcoin',p:87000,c:2.1,cat:'L1',v:'STRONG BUY',sc:94,rk:'LOW',rks:1,up:45,oi:'$18.2B',lp:67,col:'#F7931A',src:'Grayscale+Bitwise',
-   pr:{h1:.8,h4:1.8,h8:2.6,h12:3.2,h24:5.1,d3:9.4,d7:14.2,d30:28.5},
-   vol:0.85,mom:72,th:'ETF supply squeeze. RSI 33. 20M BTC mined.'},
-  {s:'SOL',n:'Solana',p:125,c:3.4,cat:'L1',v:'STRONG BUY',sc:92,rk:'MED',rks:2,up:136,oi:'$812M',lp:68,col:'#9945FF',src:'Bitwise+a16z',
-   pr:{h1:1.4,h4:3.1,h8:4.8,h12:6.2,h24:9.8,d3:18.4,d7:26.1,d30:57.0},
-   vol:1.45,mom:81,th:'Alpenglow upgrade. $1B ETF inflows. Saylor endorsed.'},
-  {s:'ETH',n:'Ethereum',p:2935,c:1.8,cat:'L1',v:'STRONG BUY',sc:88,rk:'LOW',rks:1,up:71,oi:'$4.1B',lp:62,col:'#627EEA',src:'Grayscale+Bitwise',
-   pr:{h1:.6,h4:1.4,h8:2.1,h12:2.9,h24:4.6,d3:8.8,d7:13.5,d30:25.2},
-   vol:0.70,mom:68,th:'Prague upgrade. 5 Grayscale themes. 3.8% staking.'},
-  {s:'TAO',n:'Bittensor',p:280,c:6.2,cat:'AI',v:'STRONG BUY',sc:91,rk:'MED',rks:2,up:185,oi:'$180M',lp:71,col:'#00cfff',src:'a16z+Grayscale',
-   pr:{h1:2.1,h4:5.4,h8:8.2,h12:11.1,h24:17.4,d3:31.0,d7:48.2,d30:94.0},
-   vol:2.10,mom:88,th:'#1 DeAI network. a16z backed. Every AI narrative.'},
-  {s:'ONDO',n:'Ondo Finance',p:.85,c:4.8,cat:'RWA',v:'STRONG BUY',sc:89,rk:'MED',rks:2,up:194,oi:'$95M',lp:68,col:'#10b981',src:'BlackRock',
-   pr:{h1:1.8,h4:4.2,h8:6.5,h12:8.8,h24:14.2,d3:26.4,d7:41.0,d30:85.0},
-   vol:1.80,mom:83,th:'BlackRock tokenized treasuries. $500B RWA market.'},
-  {s:'BNB',n:'BNB Chain',p:412,c:4.2,cat:'BNB',v:'BUY',sc:85,rk:'MED',rks:2,up:58,oi:'$1.1B',lp:64,col:'#f0b90b',src:'CoinDCX',
-   pr:{h1:1.1,h4:2.5,h8:3.8,h12:5.0,h24:7.9,d3:14.5,d7:22.3,d30:44.0},
-   vol:1.10,mom:74,th:'Coinbase listed. 33rd burn. Maxwell upgrade.'},
-  {s:'LINK',n:'Chainlink',p:15.4,c:2.9,cat:'DeFi',v:'STRONG BUY',sc:87,rk:'LOW',rks:1,up:127,oi:'$79M',lp:61,col:'#375BD2',src:'Bitwise CIO',
-   pr:{h1:.9,h4:2.1,h8:3.2,h12:4.1,h24:6.5,d3:12.8,d7:19.1,d30:36.5},
-   vol:0.90,mom:71,th:'Bitwise CIO personal pick. Oracle monopoly 90%.'},
-  {s:'PENDLE',n:'Pendle',p:2.1,c:7.1,cat:'DeFi',v:'BUY',sc:85,rk:'MED',rks:2,up:186,oi:'$64M',lp:65,col:'#7c3aed',src:'Grayscale',
-   pr:{h1:2.4,h4:5.8,h8:8.9,h12:12.1,h24:19.0,d3:34.5,d7:54.0,d30:104.0},
-   vol:2.40,mom:85,th:'Grayscale named it. $4B TVL. 78% below ATH.'},
-  {s:'JTO',n:'Jito',p:1.8,c:5.3,cat:'L1',v:'BUY',sc:86,rk:'MED',rks:2,up:178,oi:'$55M',lp:66,col:'#06b6d4',src:'a16z $50M',
-   pr:{h1:1.9,h4:4.6,h8:7.1,h12:9.5,h24:15.2,d3:28.1,d7:44.0,d30:88.0},
-   vol:1.90,mom:82,th:'a16z $50M direct investment. SOL staking leader.'},
-  {s:'AVAX',n:'Avalanche',p:18,c:3.9,cat:'L1',v:'BUY',sc:83,rk:'MED',rks:2,up:178,oi:'$310M',lp:62,col:'#e84142',src:'Visa+Amazon',
-   pr:{h1:1.3,h4:3.0,h8:4.6,h12:6.2,h24:9.9,d3:18.5,d7:28.8,d30:56.0},
-   vol:1.30,mom:75,th:'Visa, Amazon, Shopify on Avalanche. 76% below ATH.'},
-  {s:'ARB',n:'Arbitrum',p:.91,c:5.1,cat:'L2',v:'BUY',sc:85,rk:'MED',rks:2,up:175,oi:'$320M',lp:65,col:'#28A0F0',src:'Grayscale',
-   pr:{h1:1.7,h4:4.0,h8:6.1,h12:8.2,h24:13.1,d3:24.5,d7:38.0,d30:74.0},
-   vol:1.70,mom:79,th:'#1 ETH L2. Prague cut costs. 75% below ATH.'},
-  {s:'HYPE',n:'Hyperliquid',p:14.2,c:8.4,cat:'DeFi',v:'BUY',sc:86,rk:'MED',rks:2,up:97,oi:'$445M',lp:71,col:'#00e5a0',src:'Grayscale',
-   pr:{h1:2.8,h4:6.8,h8:10.4,h12:14.1,h24:22.3,d3:38.0,d7:59.0,d30:114.0},
-   vol:2.80,mom:90,th:'Grayscale named. $8B DEX volume. Highest revenue.'},
-  {s:'FET',n:'ASI Alliance',p:1.48,c:9.1,cat:'AI',v:'BUY',sc:84,rk:'MED',rks:2,up:170,oi:'$180M',lp:63,col:'#3d9fff',src:'a16z',
-   pr:{h1:2.9,h4:7.1,h8:10.8,h12:14.7,h24:23.2,d3:42.0,d7:65.0,d30:126.0},
-   vol:2.90,mom:88,th:'40c VC to AI-crypto. Largest AI ecosystem.'},
-  {s:'UNI',n:'Uniswap',p:7.5,c:3.4,cat:'DeFi',v:'BUY',sc:82,rk:'MED',rks:2,up:167,oi:'$120M',lp:60,col:'#ff007a',src:'SEC dropped',
-   pr:{h1:1.1,h4:2.6,h8:4.0,h12:5.4,h24:8.6,d3:16.2,d7:25.4,d30:50.0},
-   vol:1.10,mom:73,th:'SEC dropped. v4 live. Fee switch imminent.'},
-  {s:'INJ',n:'Injective',p:10,c:5.5,cat:'DeFi',v:'BUY',sc:82,rk:'HIGH',rks:3,up:200,oi:'$88M',lp:67,col:'#00b2ff',src:'DeFi Research',
-   pr:{h1:2.2,h4:5.5,h8:8.3,h12:11.3,h24:18.0,d3:33.0,d7:52.0,d30:102.0},
-   vol:2.20,mom:86,th:'Fastest DeFi. Real DEX revenue. 60% below ATH.'},
-  {s:'AAVE',n:'Aave',p:148,c:3.1,cat:'DeFi',v:'BUY',sc:83,rk:'MED',rks:2,up:103,oi:'$98M',lp:58,col:'#B6509E',src:'Grayscale',
-   pr:{h1:.9,h4:2.2,h8:3.4,h12:4.6,h24:7.3,d3:13.8,d7:21.4,d30:42.0},
-   vol:0.90,mom:70,th:'Grayscale lending leader. GHO stablecoin.'},
-  {s:'SUI',n:'Sui Network',p:1.42,c:7.3,cat:'L1',v:'BUY',sc:81,rk:'MED',rks:2,up:182,oi:'$280M',lp:66,col:'#4DA2FF',src:'Grayscale',
-   pr:{h1:2.4,h4:5.8,h8:8.8,h12:12.0,h24:18.9,d3:34.2,d7:54.0,d30:104.0},
-   vol:2.40,mom:83,th:'Grayscale next-gen. Move language. 73% below ATH.'},
-  {s:'DOT',n:'Polkadot',p:5.8,c:4.1,cat:'L1',v:'BUY',sc:80,rk:'MED',rks:2,up:112,oi:'$95M',lp:60,col:'#E6007A',src:'SpotedCrypto',
-   pr:{h1:1.3,h4:3.1,h8:4.7,h12:6.3,h24:10.1,d3:18.8,d7:29.4,d30:57.5},
-   vol:1.30,mom:74,th:'JAM upgrade March 2026. 12.1% staking.'},
-  {s:'ANKR',n:'Ankr',p:.042,c:12.3,cat:'AI',v:'BUY',sc:82,rk:'HIGH',rks:3,up:210,oi:'$12M',lp:74,col:'#3869e5',src:'SpotedCrypto',
-   pr:{h1:3.8,h4:9.4,h8:14.2,h12:19.5,h24:30.8,d3:55.0,d7:86.0,d30:168.0},
-   vol:3.80,mom:91,th:'DePIN+AI narrative. Volume spike. Real infra.'},
+  {s:'BTC',n:'Bitcoin',p:87000,c:2.1,cat:'L1',v:'STRONG BUY',sc:94,rk:'LOW',rks:1,up:45,oi:'$18.2B',lp:67,col:'#F7931A',
+   pr:{h1:.8,h4:1.8,h8:2.6,h12:3.2,h24:5.1,d3:9.4,d7:14.2,d30:28.5},vol:0.85,mom:72},
+  {s:'SOL',n:'Solana',p:125,c:3.4,cat:'L1',v:'STRONG BUY',sc:92,rk:'MED',rks:2,up:136,oi:'$812M',lp:68,col:'#9945FF',
+   pr:{h1:1.4,h4:3.1,h8:4.8,h12:6.2,h24:9.8,d3:18.4,d7:26.1,d30:57.0},vol:1.45,mom:81},
+  {s:'ETH',n:'Ethereum',p:2935,c:1.8,cat:'L1',v:'STRONG BUY',sc:88,rk:'LOW',rks:1,up:71,oi:'$4.1B',lp:62,col:'#627EEA',
+   pr:{h1:.6,h4:1.4,h8:2.1,h12:2.9,h24:4.6,d3:8.8,d7:13.5,d30:25.2},vol:0.70,mom:68},
+  {s:'TAO',n:'Bittensor',p:280,c:6.2,cat:'AI',v:'STRONG BUY',sc:91,rk:'MED',rks:2,up:185,oi:'$180M',lp:71,col:'#00cfff',
+   pr:{h1:2.1,h4:5.4,h8:8.2,h12:11.1,h24:17.4,d3:31.0,d7:48.2,d30:94.0},vol:2.10,mom:88},
+  {s:'ONDO',n:'Ondo Finance',p:.85,c:4.8,cat:'RWA',v:'STRONG BUY',sc:89,rk:'MED',rks:2,up:194,oi:'$95M',lp:68,col:'#10b981',
+   pr:{h1:1.8,h4:4.2,h8:6.5,h12:8.8,h24:14.2,d3:26.4,d7:41.0,d30:85.0},vol:1.80,mom:83},
+  {s:'BNB',n:'BNB Chain',p:412,c:4.2,cat:'BNB',v:'BUY',sc:85,rk:'MED',rks:2,up:58,oi:'$1.1B',lp:64,col:'#f0b90b',
+   pr:{h1:1.1,h4:2.5,h8:3.8,h12:5.0,h24:7.9,d3:14.5,d7:22.3,d30:44.0},vol:1.10,mom:74},
+  {s:'LINK',n:'Chainlink',p:15.4,c:2.9,cat:'DeFi',v:'STRONG BUY',sc:87,rk:'LOW',rks:1,up:127,oi:'$79M',lp:61,col:'#375BD2',
+   pr:{h1:.9,h4:2.1,h8:3.2,h12:4.1,h24:6.5,d3:12.8,d7:19.1,d30:36.5},vol:0.90,mom:71},
+  {s:'PENDLE',n:'Pendle',p:2.1,c:7.1,cat:'DeFi',v:'BUY',sc:85,rk:'MED',rks:2,up:186,oi:'$64M',lp:65,col:'#7c3aed',
+   pr:{h1:2.4,h4:5.8,h8:8.9,h12:12.1,h24:19.0,d3:34.5,d7:54.0,d30:104.0},vol:2.40,mom:85},
+  {s:'JTO',n:'Jito',p:1.8,c:5.3,cat:'L1',v:'BUY',sc:86,rk:'MED',rks:2,up:178,oi:'$55M',lp:66,col:'#06b6d4',
+   pr:{h1:1.9,h4:4.6,h8:7.1,h12:9.5,h24:15.2,d3:28.1,d7:44.0,d30:88.0},vol:1.90,mom:82},
+  {s:'AVAX',n:'Avalanche',p:18,c:3.9,cat:'L1',v:'BUY',sc:83,rk:'MED',rks:2,up:178,oi:'$310M',lp:62,col:'#e84142',
+   pr:{h1:1.3,h4:3.0,h8:4.6,h12:6.2,h24:9.9,d3:18.5,d7:28.8,d30:56.0},vol:1.30,mom:75},
+  {s:'ARB',n:'Arbitrum',p:.91,c:5.1,cat:'L2',v:'BUY',sc:85,rk:'MED',rks:2,up:175,oi:'$320M',lp:65,col:'#28A0F0',
+   pr:{h1:1.7,h4:4.0,h8:6.1,h12:8.2,h24:13.1,d3:24.5,d7:38.0,d30:74.0},vol:1.70,mom:79},
+  {s:'HYPE',n:'Hyperliquid',p:14.2,c:8.4,cat:'DeFi',v:'BUY',sc:86,rk:'MED',rks:2,up:97,oi:'$445M',lp:71,col:'#00e5a0',
+   pr:{h1:2.8,h4:6.8,h8:10.4,h12:14.1,h24:22.3,d3:38.0,d7:59.0,d30:114.0},vol:2.80,mom:90},
+  {s:'FET',n:'ASI Alliance',p:1.48,c:9.1,cat:'AI',v:'BUY',sc:84,rk:'MED',rks:2,up:170,oi:'$180M',lp:63,col:'#3d9fff',
+   pr:{h1:2.9,h4:7.1,h8:10.8,h12:14.7,h24:23.2,d3:42.0,d7:65.0,d30:126.0},vol:2.90,mom:88},
+  {s:'UNI',n:'Uniswap',p:7.5,c:3.4,cat:'DeFi',v:'BUY',sc:82,rk:'MED',rks:2,up:167,oi:'$120M',lp:60,col:'#ff007a',
+   pr:{h1:1.1,h4:2.6,h8:4.0,h12:5.4,h24:8.6,d3:16.2,d7:25.4,d30:50.0},vol:1.10,mom:73},
+  {s:'INJ',n:'Injective',p:10,c:5.5,cat:'DeFi',v:'BUY',sc:82,rk:'HIGH',rks:3,up:200,oi:'$88M',lp:67,col:'#00b2ff',
+   pr:{h1:2.2,h4:5.5,h8:8.3,h12:11.3,h24:18.0,d3:33.0,d7:52.0,d30:102.0},vol:2.20,mom:86},
+  {s:'AAVE',n:'Aave',p:148,c:3.1,cat:'DeFi',v:'BUY',sc:83,rk:'MED',rks:2,up:103,oi:'$98M',lp:58,col:'#B6509E',
+   pr:{h1:.9,h4:2.2,h8:3.4,h12:4.6,h24:7.3,d3:13.8,d7:21.4,d30:42.0},vol:0.90,mom:70},
+  {s:'SUI',n:'Sui Network',p:1.42,c:7.3,cat:'L1',v:'BUY',sc:81,rk:'MED',rks:2,up:182,oi:'$280M',lp:66,col:'#4DA2FF',
+   pr:{h1:2.4,h4:5.8,h8:8.8,h12:12.0,h24:18.9,d3:34.2,d7:54.0,d30:104.0},vol:2.40,mom:83},
+  {s:'DOT',n:'Polkadot',p:5.8,c:4.1,cat:'L1',v:'BUY',sc:80,rk:'MED',rks:2,up:112,oi:'$95M',lp:60,col:'#E6007A',
+   pr:{h1:1.3,h4:3.1,h8:4.7,h12:6.3,h24:10.1,d3:18.8,d7:29.4,d30:57.5},vol:1.30,mom:74},
+  {s:'ANKR',n:'Ankr',p:.042,c:12.3,cat:'AI',v:'BUY',sc:82,rk:'HIGH',rks:3,up:210,oi:'$12M',lp:74,col:'#3869e5',
+   pr:{h1:3.8,h4:9.4,h8:14.2,h12:19.5,h24:30.8,d3:55.0,d7:86.0,d30:168.0},vol:3.80,mom:91},
 ];
 
 const PERIODS=[
@@ -546,12 +504,17 @@ const PERIODS=[
   {k:'d7',l:'7D',main:false},{k:'d30',l:'30D',main:false}
 ];
 
-// ── STATE ──────────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
 const LP={};TK.forEach(t=>{LP[t.s]={p:t.p,c:t.c};});
 let selPeriod='h12',capital=500,risk='balanced',strategy='maxret';
 let activeBots=[],completedBots=[];
 let hmMode='chg',chatBusy=false;
-const chatHist=[{role:'assistant',text:'👋 AutoBot AI ready!\n\n⬡ I automatically:\n• Scan all 19 tokens\n• Score each by return × momentum × AI score\n• Allocate capital optimally\n• Set per-token leverage, SL, TP\n• Execute all trades in one tap\n\nJust pick your period, capital, and risk — I do the rest.\n\nOr ask me anything:'}];
+// CONNECTION STATE
+let BACKEND_URL='';
+let IS_CONNECTED=false;
+let IS_LIVE=false; // true = real backend confirmed working
+
+const chatHist=[{role:'assistant',text:'👋 AutoBot AI with REAL TRADING!\n\n✅ New features:\n• Fetches your real Binance balance\n• Places actual orders via your Railway backend\n• Shows order confirmation from Binance\n• Live P&L tracking\n\nGo to 🔗 CONNECT tab to link your backend and API keys.\n\nThen launch the bot for real execution! 🚀'}];
 
 const fp=p=>p>=1000?'$'+p.toLocaleString(undefined,{maximumFractionDigits:0}):p>=1?'$'+p.toFixed(2):p>=0.01?'$'+p.toFixed(4):'$'+p.toFixed(6);
 const HC=v=>{
@@ -561,23 +524,317 @@ const HC=v=>{
   return['#770014','#ffcccc'];
 };
 
-// ── SCORING ALGORITHMS ─────────────────────────────────────────────────────────
+// ── BACKEND API CALLS ─────────────────────────────────────────────────────────
+async function apiCall(path, method='GET', body=null){
+  if(!BACKEND_URL) throw new Error('No backend URL set');
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(body) opts.body=JSON.stringify(body);
+  const res=await fetch(BACKEND_URL+path,opts);
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error||'Request failed');
+  return data;
+}
+
+async function testBackend(){
+  const url=document.getElementById('in-url').value.trim();
+  const resultEl=document.getElementById('test-result');
+  const btn=document.getElementById('test-btn');
+  if(!url){resultEl.innerHTML='<span style="color:var(--rd)">Enter backend URL first</span>';return;}
+  BACKEND_URL=url;
+  btn.textContent='⬡ Testing...';btn.disabled=true;
+  resultEl.innerHTML='<span style="color:var(--g)">Connecting to server...</span>';
+  try{
+    const data=await apiCall('/');
+    if(data.status==='online'){
+      resultEl.innerHTML=`<span style="color:var(--gn)">✓ Server ONLINE · Keys loaded: ${data.keysLoaded?'YES ✅':'NO ❌'}</span>`;
+      if(!data.keysLoaded){
+        resultEl.innerHTML+='<br/><span style="color:var(--rd)">Add BINANCE_API_KEY + BINANCE_API_SECRET in Railway Variables!</span>';
+      }
+    }
+  }catch(e){
+    resultEl.innerHTML=`<span style="color:var(--rd)">✗ Cannot reach server: ${e.message}</span>`;
+  }
+  btn.textContent='🔍 TEST BACKEND CONNECTION';btn.disabled=false;
+}
+
+async function fetchBalance(){
+  if(!BACKEND_URL){
+    document.getElementById('bal-sub').textContent='Connect API to see real balance';
+    return;
+  }
+  try{
+    const data=await apiCall('/api/balance');
+    if(data.totalUSDT){
+      const usdt=parseFloat(data.totalUSDT);
+      document.getElementById('bal-val').textContent='$'+usdt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      document.getElementById('bal-sub').textContent=`✅ Real Binance balance · ${data.balances?.length||0} assets`;
+      document.getElementById('spot-bal').textContent='$'+usdt.toFixed(2);
+      // update capital if user hasn't set custom
+      if(capital===500&&usdt>0){
+        const suggested=Math.min(Math.floor(usdt*0.2/100)*100,5000);
+        if(suggested>=100){
+          capital=suggested;
+          document.getElementById('cap-inp').value=suggested;
+        }
+      }
+    }
+    // fetch open orders
+    try{
+      const orders=await apiCall('/api/orders/open');
+      document.getElementById('open-ord').textContent=orders.count||0;
+    }catch(e){}
+  }catch(e){
+    document.getElementById('bal-sub').textContent='Error fetching balance: '+e.message;
+  }
+}
+
+async function doConnect(){
+  const k=document.getElementById('in-key').value.trim();
+  const s=document.getElementById('in-sec').value.trim();
+  const url=document.getElementById('in-url').value.trim();
+  const msg=document.getElementById('conn-msg');
+  const btn=document.getElementById('conn-btn');
+
+  if(!url){msg.innerHTML='<span style="color:var(--rd)">Enter backend URL first</span>';return;}
+  if(!k||!s){msg.innerHTML='<span style="color:var(--rd)">Enter both API Key and Secret Key</span>';return;}
+
+  BACKEND_URL=url;
+  btn.disabled=true;btn.textContent='⬡ Connecting...';
+  msg.innerHTML='<span style="color:var(--g)">Testing connection...</span>';
+
+  try{
+    // Step 1: Test server
+    const serverTest=await apiCall('/');
+    if(!serverTest.keysLoaded){
+      msg.innerHTML='<span style="color:var(--rd)">Keys not loaded on server! Add them in Railway → Variables tab.</span>';
+      btn.disabled=false;btn.textContent='🔗 CONNECT & FETCH BALANCE';
+      return;
+    }
+
+    // Step 2: Test Binance connection
+    msg.innerHTML='<span style="color:var(--g)">Testing Binance connection...</span>';
+    const binanceTest=await apiCall('/api/test');
+
+    if(binanceTest.connected){
+      IS_CONNECTED=true;IS_LIVE=true;
+      setConnUI(true);
+      msg.innerHTML=`<span style="color:var(--gn)">✓ LIVE! Connected to Binance · canTrade: ${binanceTest.canTrade?'YES ✅':'NO ❌'}</span>`;
+
+      if(!binanceTest.canTrade){
+        msg.innerHTML+='<br/><span style="color:var(--or)">⚠️ Enable Spot & Futures on your Binance API key!</span>';
+      }
+
+      // Step 3: Fetch real balance
+      msg.innerHTML+='<br/><span style="color:var(--g)">Fetching balance...</span>';
+      await fetchBalance();
+
+      // Show live preview
+      showLivePreview();
+
+      // Auto-refresh balance every 30 seconds
+      setInterval(fetchBalance,30000);
+
+      document.getElementById('bot-mode-info').innerHTML=
+        '<span style="color:var(--gn)">✅ REAL TRADING ENABLED — Orders will execute on Binance</span>';
+
+    }else{
+      msg.innerHTML=`<span style="color:var(--rd)">Binance connection failed: ${binanceTest.error||'Unknown error'}</span>`;
+    }
+  }catch(e){
+    msg.innerHTML=`<span style="color:var(--rd)">Connection error: ${e.message}</span>`;
+    // Try saving keys for demo mode
+    window._k=k;window._s=s;
+    IS_CONNECTED=true;IS_LIVE=false;
+    setConnUI(false);
+    msg.innerHTML+='<br/><span style="color:var(--g)">Running in demo mode. Check your backend URL and API keys.</span>';
+  }
+
+  btn.disabled=false;btn.textContent='🔗 CONNECT & FETCH BALANCE';
+}
+
+function setConnUI(live){
+  const dot=document.getElementById('conn-dot');
+  const txt=document.getElementById('conn-txt');
+  const badge=document.getElementById('conn-badge');
+  dot.style.background=live?'var(--gn)':'var(--g)';
+  dot.style.animation='pulse 1.5s infinite';
+  txt.textContent=live?'LIVE':'DEMO';
+  txt.style.color=live?'var(--gn)':'var(--g)';
+  badge.textContent=live?'🟢 LIVE':'🟡 DEMO';
+  badge.style.borderColor=live?'var(--gn)':'var(--g)';
+  badge.style.color=live?'var(--gn)':'var(--g)';
+}
+
+async function showLivePreview(){
+  const el=document.getElementById('live-preview');
+  const body=document.getElementById('live-preview-body');
+  try{
+    const bal=await apiCall('/api/balance');
+    const topBals=bal.balances?.slice(0,5)||[];
+    body.innerHTML=topBals.map(b=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)">
+        <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--g)">${b.asset}</span>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--tx)">${b.total.toFixed(4)}</span>
+      </div>`).join('')+
+      `<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--gn);margin-top:8px;text-align:center">✅ Real balance data from Binance</div>`;
+    el.style.display='block';
+  }catch(e){}
+}
+
+// ── PLACE REAL ORDERS ─────────────────────────────────────────────────────────
+async function placeRealOrder(token, alloc){
+  const symbol=token.s+'USDT';
+  const price=LP[token.s].p;
+  const quantity=(alloc.alloc/price);
+
+  // Calculate minimum quantity based on token price
+  let qty;
+  if(price>=10000) qty=parseFloat((quantity).toFixed(5));
+  else if(price>=100) qty=parseFloat((quantity).toFixed(4));
+  else if(price>=1) qty=parseFloat((quantity).toFixed(3));
+  else qty=parseFloat((quantity).toFixed(0));
+
+  try{
+    const result=await apiCall('/api/order/spot',{
+      method:'POST',
+      body:{
+        symbol,
+        side: alloc.dir==='SHORT'?'SELL':'BUY',
+        type:'MARKET',
+        quantity: qty.toString()
+      }
+    });
+    return{success:true,symbol,orderId:result.orderId,status:result.status,qty};
+  }catch(e){
+    return{success:false,symbol,error:e.message,qty};
+  }
+}
+
+async function executeAll(allocs){
+  const btn=event.target;
+
+  if(!IS_LIVE){
+    // DEMO MODE
+    btn.textContent='✓ Demo: Orders simulated (not real)';
+    btn.style.background='var(--g)';
+    addToActiveBots(allocs);
+    setTimeout(()=>{btn.textContent=`🚀 EXECUTE ALL ${allocs.length} ORDERS`;btn.style.background='';},2500);
+    return;
+  }
+
+  // REAL MODE
+  btn.disabled=true;
+  btn.textContent='⬡ Placing orders on Binance...';
+  btn.style.background='var(--bl)';
+
+  // Show order status
+  const resultDiv=document.getElementById('bot-result');
+  const statusHtml=`<div class="order-status" id="order-status-live">
+    <div class="os-title">LIVE ORDER EXECUTION</div>
+    ${allocs.map(t=>`<div class="os-item" id="os-${t.s}">
+      <div class="os-ico" style="background:${t.col}22;border:1px solid ${t.col}44;color:${t.col}">⬡</div>
+      <div style="flex:1">
+        <div class="os-sym">${t.s}/USDT</div>
+        <div class="os-status" id="os-st-${t.s}" style="color:var(--mu)">⏳ Pending...</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--g)">$${t.alloc.toFixed(0)}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mu)">${t.dir}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+
+  // Insert status before existing result
+  const existing=document.getElementById('order-status-live');
+  if(existing)existing.remove();
+  resultDiv.insertAdjacentHTML('afterbegin',statusHtml);
+
+  let success=0,failed=0;
+
+  for(const alloc of allocs){
+    const stEl=document.getElementById(`os-st-${alloc.s}`);
+    const itemEl=document.getElementById(`os-${alloc.s}`);
+    if(stEl)stEl.textContent='⬡ Placing...';
+
+    const result=await placeRealOrder(TK.find(t=>t.s===alloc.s),alloc);
+
+    if(result.success){
+      success++;
+      if(stEl){
+        stEl.textContent=`✅ Placed! Order #${result.orderId}`;
+        stEl.style.color='var(--gn)';
+      }
+      if(itemEl)itemEl.style.borderColor='rgba(0,229,160,.3)';
+    }else{
+      failed++;
+      if(stEl){
+        stEl.innerHTML=`<span style="color:var(--rd)">✗ Failed: ${result.error}</span>`;
+      }
+      if(itemEl)itemEl.style.borderColor='rgba(255,61,90,.3)';
+    }
+
+    // Small delay between orders
+    await new Promise(r=>setTimeout(r,300));
+  }
+
+  // Update button
+  if(success>0){
+    btn.textContent=`✅ ${success}/${allocs.length} Orders Placed on Binance!`;
+    btn.style.background='var(--gn)';btn.style.color='#000';
+    addToActiveBots(allocs);
+    // Refresh balance after orders
+    setTimeout(fetchBalance,2000);
+  }else{
+    btn.textContent=`✗ All ${failed} orders failed — check API permissions`;
+    btn.style.background='var(--rd)';
+  }
+
+  btn.disabled=false;
+  setTimeout(()=>{
+    btn.textContent=`🚀 EXECUTE ALL ${allocs.length} ORDERS`;
+    btn.style.background='';btn.style.color='';
+  },5000);
+}
+
+async function executeTop(allocs){
+  // Override event target for top 3
+  const topAllocs=allocs.slice?allocs:JSON.parse(allocs);
+  const fakeEvent={target:document.querySelector('.exec-top')};
+  const origEvent=window.event;
+  await executeAll(topAllocs.slice(0,3));
+}
+
+function addToActiveBots(allocs){
+  const pdLabel=PERIODS.find(p=>p.k===selPeriod)?.l||'12H';
+  activeBots.push({
+    id:Date.now(),
+    name:`${strategy.toUpperCase()} — ${pdLabel}`,
+    period:selPeriod,pdLabel,capital,risk,strategy,
+    tokens:allocs,status:'RUNNING',
+    pnl:0,winTrades:0,totalTrades:allocs.length,
+    startTime:new Date().toLocaleTimeString(),
+    progress:0,
+    isReal:IS_LIVE
+  });
+  document.getElementById('brain-dot')||document.querySelector('.brain-dot');
+  document.getElementById('live-stats')||document.querySelector('#live-stats');
+  const ld=document.querySelector('.brain-dot');
+  if(ld){ld.className='brain-dot active';}
+  const ls=document.getElementById('live-stats');
+  if(ls)ls.style.display='block';
+  simulateBotProgress();
+}
+
+// ── SCORING ───────────────────────────────────────────────────────────────────
 function scoreTokens(pk){
   return TK.map(t=>{
     const pr=t.pr[pk]||0;
     const riskPenalty={LOW:1.0,MED:0.85,HIGH:0.65}[t.rk]||0.8;
     let score;
-    if(strategy==='maxret'){
-      score=pr*(t.sc/100)*1.2+(t.mom/100)*0.4+(t.up/200)*0.2;
-    } else if(strategy==='sharpe'){
-      const sharpe=pr/(t.vol||1);
-      score=sharpe*(t.sc/100)*riskPenalty;
-    } else if(strategy==='momentum'){
-      score=t.mom*0.5+(pr/30)*0.3+(t.lp>60?1.2:0.8)*0.2;
-    } else { // diversify
-      score=pr*0.4+(t.sc/100)*0.3*riskPenalty+0.3;
-    }
-    // risk filter
+    if(strategy==='maxret') score=pr*(t.sc/100)*1.2+(t.mom/100)*0.4+(t.up/200)*0.2;
+    else if(strategy==='sharpe') score=(pr/(t.vol||1))*(t.sc/100)*riskPenalty;
+    else if(strategy==='momentum') score=t.mom*0.5+(pr/30)*0.3+(t.lp>60?1.2:0.8)*0.2;
+    else score=pr*0.4+(t.sc/100)*0.3*riskPenalty+0.3;
     if(risk==='safe'&&t.rks>1)score*=0.5;
     if(risk==='balanced'&&t.rks>2)score*=0.6;
     return{...t,score,pr};
@@ -591,7 +848,7 @@ function pickTopTokens(scored){
     for(const t of scored){
       if(!cats[t.cat]){cats[t.cat]=true;picked.push(t);if(picked.length>=nMap)break;}
     }
-    if(picked.length<nMap){for(const t of scored){if(!picked.find(x=>x.s===t.s)){picked.push(t);if(picked.length>=nMap)break;}}}
+    if(picked.length<nMap)for(const t of scored){if(!picked.find(x=>x.s===t.s)){picked.push(t);if(picked.length>=nMap)break;}}
     return picked.slice(0,nMap);
   }
   return scored.slice(0,nMap);
@@ -613,75 +870,27 @@ function calcAllocations(tokens){
   });
 }
 
-// ── PERIOD GRID ────────────────────────────────────────────────────────────────
-function renderPeriodGrid(){
-  const main=PERIODS.filter(p=>p.main);
-  const more=PERIODS.filter(p=>!p.main);
-  const scored=scoreTokens;
-  document.getElementById('period-grid').innerHTML=main.map(p=>{
-    const s=scoreTokens(p.k);const top=s[0];const n=TK.filter(t=>(t.pr[p.k]||0)>=(p.k==='h1'?0.5:p.k==='h4'?1.5:p.k==='h8'?3:4)).length;
-    return`<div class="pgrid-item ${selPeriod===p.k?'on':''}" onclick="setPeriod('${p.k}',this)">
-      <div class="pg-time">${p.l}</div>
-      <div class="pg-ret up">+${(top.pr[p.k]||0).toFixed(1)}% max</div>
-      <div class="pg-tok">${n} tokens</div>
-    </div>`;
-  }).join('');
-  document.getElementById('period-more').innerHTML=more.map(p=>{
-    const s=TK.slice().sort((a,b)=>(b.pr[p.k]||0)-(a.pr[p.k]||0));const top=s[0];
-    return`<div class="pm-item ${selPeriod===p.k?'on':''}" onclick="setPeriod('${p.k}',this)">
-      <div class="pm-time">${p.l}</div>
-      <div class="pm-ret up">+${(top.pr[p.k]||0).toFixed(0)}% max</div>
-    </div>`;
-  }).join('');
-}
-
-function setPeriod(k,el){
-  selPeriod=k;
-  document.querySelectorAll('.pgrid-item,.pm-item').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-}
-
-// ── CAPITAL ────────────────────────────────────────────────────────────────────
-function setCap(v,btn){capital=v;document.querySelectorAll('.cap-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.getElementById('cap-inp').value=v;}
-function setCapCustom(v){const n=parseFloat(v);if(n>0){capital=n;document.querySelectorAll('.cap-btn').forEach(b=>b.classList.remove('on'));}}
-
-// ── RISK ───────────────────────────────────────────────────────────────────────
-function setRisk(r){
-  risk=r;
-  document.getElementById('rb-safe').className='risk-btn'+(r==='safe'?' on-safe':'');
-  document.getElementById('rb-bal').className='risk-btn'+(r==='balanced'?' on-bal':'');
-  document.getElementById('rb-agg').className='risk-btn'+(r==='aggressive'?' on-agg':'');
-}
-
-// ── STRATEGY ───────────────────────────────────────────────────────────────────
-function setStrat(s,el){
-  strategy=s;
-  document.querySelectorAll('.strat-opt').forEach(b=>{b.classList.remove('on');});
-  el.classList.add('on');
-}
-
-// ── LAUNCH BOT ────────────────────────────────────────────────────────────────
+// ── LAUNCH ────────────────────────────────────────────────────────────────────
 async function launchBot(){
   const overlay=document.getElementById('thinking');
   const fill=document.getElementById('think-fill');
   const pct=document.getElementById('think-pct');
   const steps=document.getElementById('think-steps');
-  const title=document.getElementById('think-title');
-  const sub=document.getElementById('think-sub');
   const pdLabel=PERIODS.find(p=>p.k===selPeriod)?.l||'12H';
 
   overlay.style.display='flex';
-  title.textContent=`⬡ AutoBot Analyzing ${pdLabel} Market`;
-  sub.textContent=`Scanning all 19 tokens\nStrategy: ${strategy.toUpperCase()} · Risk: ${risk.toUpperCase()}\nCapital: $${capital}`;
+  document.getElementById('think-title').textContent=`⬡ AutoBot Analyzing ${pdLabel} Market`;
+  document.getElementById('think-sub').textContent=
+    `Strategy: ${strategy.toUpperCase()} · Risk: ${risk.toUpperCase()}\nCapital: $${capital} · Mode: ${IS_LIVE?'🟢 REAL TRADING':'🟡 DEMO'}`;
 
   const STEPS=[
-    {ico:'📡',txt:'Fetching live prices & OI for all 19 tokens...'},
-    {ico:'🧮',txt:`Scoring tokens by ${strategy==='maxret'?'return × AI score':strategy==='sharpe'?'Sharpe ratio':strategy==='momentum'?'RSI + volume momentum':'category diversification'}...`},
-    {ico:'⚖️',txt:`Applying ${risk} risk filter (${risk==='safe'?'1–3×':risk==='balanced'?'3–5×':'5–10×'} leverage)...`},
-    {ico:'💰',txt:`Calculating optimal capital allocation for $${capital}...`},
-    {ico:'📐',txt:'Setting stop loss & take profit per token...'},
-    {ico:'🤖',txt:'AI validating basket with Claude claude-sonnet-4-20250514...'},
-    {ico:'✅',txt:'Execution plan ready!'},
+    {ico:'📡',txt:'Fetching live prices for all 19 tokens...'},
+    {ico:'🧮',txt:`Scoring by ${strategy==='maxret'?'return × AI score':strategy==='sharpe'?'Sharpe ratio':strategy==='momentum'?'RSI momentum':'diversification'}...`},
+    {ico:'⚖️',txt:`Applying ${risk} risk filter...`},
+    {ico:'💰',txt:`Allocating $${capital} optimally...`},
+    {ico:'📐',txt:'Setting SL & TP per token...'},
+    {ico:'🤖',txt:'AI validating with Claude...'},
+    {ico:IS_LIVE?'🟢':'🟡',txt:IS_LIVE?'Real orders ready for Binance!':'Demo plan ready (connect API for real)'},
   ];
 
   steps.innerHTML=STEPS.map(s=>`<div class="tstep">
@@ -689,7 +898,19 @@ async function launchBot(){
     <div class="tstep-txt" style="color:var(--mu)">${s.txt}</div>
   </div>`).join('');
 
-  // Animate steps
+  // If live, also fetch fresh prices
+  if(IS_LIVE){
+    try{
+      const prices=await apiCall('/api/prices?symbols=BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,LINKUSDT,TAOUSDT');
+      if(prices.prices){
+        prices.prices.forEach(p=>{
+          const sym=p.symbol.replace('USDT','');
+          if(LP[sym]){LP[sym].p=p.price;LP[sym].c=p.change24h;}
+        });
+      }
+    }catch(e){}
+  }
+
   for(let i=0;i<STEPS.length;i++){
     await new Promise(r=>setTimeout(r,350+Math.random()*250));
     const stepEls=steps.querySelectorAll('.tstep');
@@ -700,27 +921,24 @@ async function launchBot(){
     fill.style.width=p+'%';pct.textContent=p+'%';
   }
 
-  // Call Claude AI for actual recommendation
   const scored=scoreTokens(selPeriod);
-  const top5=scored.slice(0,5).map(t=>`${t.s}(score:${t.score.toFixed(1)},${pdLabel}ret:+${(t.pr[selPeriod]||0).toFixed(1)}%,AI:${t.sc})`).join(', ');
+  const top5=scored.slice(0,5).map(t=>`${t.s}(${t.score.toFixed(1)},+${(t.pr[selPeriod]||0).toFixed(1)}%)`).join(', ');
   const picked=pickTopTokens(scored);
   const allocs=calcAllocations(picked);
 
   let aiRationale='AI analysis complete.';
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',max_tokens:400,
-      system:`You are a Binance trading bot AI. Provide a concise 80-word strategy rationale for the selected basket. Format: 3 bullet points — WHY this basket, KEY risk to watch, CONFIDENCE level (%). Be specific and analytical.`,
-      messages:[{role:'user',content:`Period:${pdLabel}, Capital:$${capital}, Risk:${risk}, Strategy:${strategy}. Selected: ${allocs.map(t=>`${t.s}($${t.alloc.toFixed(0)},${t.lev}×lev,SL${t.sl}%,TP${t.tp.toFixed(1)}%)`).join(', ')}. Top scored: ${top5}. F&G:18,BTC RSI:33.`}]
+      model:'claude-sonnet-4-20250514',max_tokens:350,
+      system:`Binance trading bot AI. 70 words max. 3 bullets: WHY this basket, KEY risk, CONFIDENCE %. Be specific.`,
+      messages:[{role:'user',content:`Period:${pdLabel}, $${capital}, ${risk}, ${strategy}. Selected: ${allocs.map(t=>`${t.s}($${t.alloc.toFixed(0)},${t.lev}×,SL${t.sl}%,TP${t.tp.toFixed(1)}%)`).join(', ')}. Top: ${top5}. F&G:18.`}]
     })});
     const d=await r.json();aiRationale=d.content?.map(b=>b.text||'').join('')||aiRationale;
   }catch(e){}
 
   fill.style.width='100%';pct.textContent='100%';
-  await new Promise(r=>setTimeout(r,400));
+  await new Promise(r=>setTimeout(r,300));
   overlay.style.display='none';
-
-  // Show result
   showBotResult(allocs,aiRationale,pdLabel);
 }
 
@@ -730,18 +948,27 @@ function showBotResult(allocs,rationale,pdLabel){
   const totalEst=allocs.reduce((s,t)=>s+t.estPft,0);
   const totalSL=allocs.reduce((s,t)=>s+(t.alloc*t.lev*t.sl/100),0);
   const riskColor={safe:'var(--gn)',balanced:'var(--g)',aggressive:'var(--rd)'}[risk];
-  const stratLabel={maxret:'Max Return',sharpe:'Risk-Adjusted',momentum:'Momentum',diversify:'Diversified'}[strategy];
+  const isRealMode=IS_LIVE;
 
   const html=`
+  <!-- Mode Banner -->
+  <div style="background:${isRealMode?'rgba(0,229,160,.08)':'rgba(240,185,11,.08)'};border:1px solid ${isRealMode?'rgba(0,229,160,.3)':'rgba(240,185,11,.3)'};border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:9px">
+    <div style="font-size:20px">${isRealMode?'🟢':'🟡'}</div>
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:${isRealMode?'var(--gn)':'var(--g)'}">${isRealMode?'REAL TRADING MODE':'DEMO MODE'}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mu2);margin-top:2px">${isRealMode?'Orders will be placed on your real Binance account':'Go to 🔗 Connect tab to enable real trading'}</div>
+    </div>
+  </div>
+
   <div class="result-card">
     <div class="rc-header">
       <div>
         <div class="rc-title">⬡ Strategy Ready</div>
-        <div class="rc-sub">${allocs.length} tokens · ${pdLabel} · ${stratLabel} · ${risk.toUpperCase()}</div>
+        <div class="rc-sub">${allocs.length} tokens · ${pdLabel} · ${risk.toUpperCase()}</div>
       </div>
       <div class="rc-score">
-        <div class="rc-score-val">+${totalEst.toFixed(0)}</div>
-        <div class="rc-score-lbl">EST. PROFIT $</div>
+        <div class="rc-score-val">+$${totalEst.toFixed(0)}</div>
+        <div class="rc-score-lbl">EST. PROFIT</div>
       </div>
     </div>
     <div class="rc-stats">
@@ -751,88 +978,64 @@ function showBotResult(allocs,rationale,pdLabel){
     </div>
   </div>
 
-  <!-- AI RATIONALE -->
   <div style="background:var(--s2);border:1px solid rgba(240,185,11,.2);border-radius:12px;padding:13px;margin-bottom:12px">
-    <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--g);letter-spacing:1.5px;margin-bottom:8px">⬡ AI STRATEGY RATIONALE</div>
+    <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--g);letter-spacing:1.5px;margin-bottom:8px">⬡ AI RATIONALE</div>
     <div style="font-family:'Space Mono',monospace;font-size:10px;color:#9ab4cc;line-height:1.8;white-space:pre-wrap">${rationale}</div>
   </div>
 
-  <!-- TOKEN ALLOCATIONS -->
-  <div class="slbl">SELECTED TOKENS & ALLOCATIONS</div>
+  <div class="slbl">TOKEN ALLOCATIONS</div>
   <div class="alloc-table">
     ${allocs.map((t,i)=>{
-      const barW=Math.round(t.pct);const dirCol=t.dir==='LONG'?'var(--gn)':'var(--rd)';
+      const dirCol=t.dir==='LONG'?'var(--gn)':'var(--rd)';
       return`<div class="alloc-row ${i<3?'top':''}">
         <div class="ar-rank">#${i+1}</div>
         <div class="ar-ico" style="background:${t.col}18;border-color:${t.col}44;color:${t.col}">${t.s.slice(0,3)}</div>
         <div class="ar-mid">
           <div class="ar-sym">${t.s} <span style="font-family:'Space Mono',monospace;font-size:8px;color:${dirCol}">${t.dir}</span></div>
-          <div class="ar-meta">${t.lev}× lev · SL ${t.sl}% · TP ${t.tp.toFixed(1)}%</div>
-          <div class="ar-bar" style="width:${barW}%;background:linear-gradient(90deg,${t.col},${t.col}88);max-width:100%"></div>
+          <div class="ar-meta">${t.lev}× lev · SL ${t.sl}% · TP ${t.tp.toFixed(1)}% · ${fp(LP[t.s].p)}</div>
+          <div class="ar-bar" style="width:${t.pct}%;background:linear-gradient(90deg,${t.col},${t.col}88);max-width:100%"></div>
         </div>
         <div class="ar-right">
           <div class="ar-alloc">$${t.alloc.toFixed(0)}</div>
-          <div class="ar-ret up">+${(t.pr[selPeriod]||0).toFixed(1)}% est</div>
+          <div class="ar-ret up">+${(t.pr[selPeriod]||0).toFixed(1)}%</div>
           <div class="ar-pft up">+$${t.estPft.toFixed(2)}</div>
-          <span class="ar-dir" style="background:${riskColor}18;color:${riskColor}">${t.pct}% of capital</span>
+          <span class="ar-dir" style="background:${riskColor}18;color:${riskColor}">${t.pct}%</span>
         </div>
       </div>`;
     }).join('')}
   </div>
 
-  <!-- SUMMARY -->
   <div class="profit-box">
     <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--gn);letter-spacing:2px;margin-bottom:9px">ORDER SUMMARY</div>
-    <div class="pb-row"><span class="pb-l">Orders to place</span><span class="pb-v" style="color:var(--g)">${allocs.length} simultaneous</span></div>
-    <div class="pb-row"><span class="pb-l">Total capital deployed</span><span class="pb-v">$${totalAlloc.toFixed(2)}</span></div>
-    <div class="pb-row"><span class="pb-l">Total leveraged exposure</span><span class="pb-v up">$${totalExposure.toFixed(2)}</span></div>
-    <div class="pb-row"><span class="pb-l">Target period</span><span class="pb-v" style="color:var(--g)">${pdLabel}</span></div>
+    <div class="pb-row"><span class="pb-l">Orders</span><span class="pb-v" style="color:var(--g)">${allocs.length} simultaneous</span></div>
+    <div class="pb-row"><span class="pb-l">Capital deployed</span><span class="pb-v">$${totalAlloc.toFixed(2)}</span></div>
+    <div class="pb-row"><span class="pb-l">Leveraged exposure</span><span class="pb-v up">$${totalExposure.toFixed(2)}</span></div>
     <div class="pb-row"><span class="pb-l">Max loss (all SL hit)</span><span class="pb-v dn">-$${totalSL.toFixed(2)}</span></div>
-    <div class="pb-row"><span class="pb-l">Est. profit (all targets hit)</span><span class="pb-v up" style="font-size:14px">+$${totalEst.toFixed(2)} (+${(totalEst/totalAlloc*100).toFixed(1)}%)</span></div>
+    <div class="pb-row"><span class="pb-l">Est. profit if targets hit</span><span class="pb-v up" style="font-size:14px">+$${totalEst.toFixed(2)} (+${(totalEst/totalAlloc*100).toFixed(1)}%)</span></div>
   </div>
 
   <div class="exec-row">
-    <button class="exec-all" onclick="executeAll(${JSON.stringify(allocs).replace(/"/g,'&quot;')})">🚀 EXECUTE ALL ${allocs.length} ORDERS</button>
-    <button class="exec-top" onclick="executeTop(${JSON.stringify(allocs.slice(0,3)).replace(/"/g,'&quot;')})">Top 3 Only</button>
+    <button class="exec-all" id="exec-all-btn" onclick="executeAll(${JSON.stringify(allocs).replace(/"/g,'&quot;')})">
+      ${isRealMode?`🚀 PLACE ALL ${allocs.length} REAL ORDERS`:`🟡 SIMULATE ${allocs.length} ORDERS`}
+    </button>
+    <button class="exec-top" onclick="executeAllTop(${JSON.stringify(allocs.slice(0,3)).replace(/"/g,'&quot;')})">Top 3</button>
   </div>
-  <button class="btn-out" onclick="document.getElementById('bot-result').style.display='none'">Reconfigure</button>
-  `;
+  ${isRealMode?'<div style="font-family:Space Mono,monospace;font-size:9px;color:var(--rd);text-align:center;margin-bottom:10px">⚠️ This places REAL orders with REAL money. Double-check amounts before proceeding.</div>':''}
+  <button class="btn-out" onclick="document.getElementById(\'bot-result\').style.display=\'none\'">Reconfigure</button>`;
+
   document.getElementById('bot-result').innerHTML=html;
   document.getElementById('bot-result').style.display='block';
   document.getElementById('bot-result').scrollIntoView({behavior:'smooth',block:'start'});
-
-  // update brain status
-  document.getElementById('brain-dot').className='brain-dot active';
-  document.getElementById('brain-label').textContent='STRATEGY READY';
-  document.getElementById('brain-label').style.color='var(--gn)';
-  document.getElementById('brain-sub').textContent=`${allocs.length} tokens · $${capital} · ${pdLabel} target`;
 }
 
-function executeAll(allocs){
-  const btn=event.target;
-  btn.textContent=`✓ ${allocs.length} Orders Placed!`;btn.style.background='var(--gn)';btn.style.color='#000';
-  // add to active bots
-  const pdLabel=PERIODS.find(p=>p.k===selPeriod)?.l||'12H';
-  activeBots.push({
-    id:Date.now(),name:`${strategy.toUpperCase()} — ${pdLabel}`,
-    period:selPeriod,pdLabel,capital,risk,strategy,
-    tokens:allocs,status:'RUNNING',
-    pnl:0,winTrades:0,totalTrades:allocs.length,
-    startTime:new Date().toLocaleTimeString(),
-    progress:0
-  });
-  document.getElementById('brain-dot').className='brain-dot active';
-  document.getElementById('brain-label').textContent='BOT RUNNING';
-  document.getElementById('brain-label').style.color='var(--gn)';
-  document.getElementById('live-stats').style.display='block';
-  setTimeout(()=>{btn.textContent=`🚀 EXECUTE ALL ${allocs.length} ORDERS`;btn.style.background='';btn.style.color='';},2500);
-  simulateBotProgress();
-}
-function executeTop(allocs){
-  executeAll(allocs);
+async function executeAllTop(allocs){
+  // Temporarily replace event
+  const origTarget=event.target;
+  origTarget.textContent='⬡ Placing top 3...';
+  await executeAll(allocs);
 }
 
-// ── BOT SIMULATION ─────────────────────────────────────────────────────────────
+// ── BOT SIM ───────────────────────────────────────────────────────────────────
 function simulateBotProgress(){
   setInterval(()=>{
     activeBots.forEach(bot=>{
@@ -840,49 +1043,43 @@ function simulateBotProgress(){
       const drift=(Math.random()-.42)*.8;
       bot.pnl+=drift;
       bot.progress=Math.min(bot.progress+Math.random()*2,100);
-      if(Math.random()<.15){bot.winTrades=Math.min(bot.winTrades+1,bot.totalTrades);}
+      if(Math.random()<.15)bot.winTrades=Math.min(bot.winTrades+1,bot.totalTrades);
     });
-    updateLiveStats();
+    const total=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.pnl,0);
+    const nPos=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.totalTrades,0);
+    const wins=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.winTrades,0);
+    const pnlEl=document.getElementById('day-pnl');
+    if(pnlEl)pnlEl.textContent=(total>=0?'+$':'-$')+Math.abs(total).toFixed(2);
     if(document.getElementById('scr-active').classList.contains('on'))renderActiveBots();
   },2000);
-}
-function updateLiveStats(){
-  const total=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.pnl,0);
-  const nPos=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.totalTrades,0);
-  const wins=activeBots.filter(b=>b.status==='RUNNING').reduce((s,b)=>s+b.winTrades,0);
-  document.getElementById('ls-pnl').textContent=(total>=0?'+$':'-$')+Math.abs(total).toFixed(2);
-  document.getElementById('ls-pnl').className=total>=0?'up':'dn';
-  document.getElementById('ls-pos').textContent=nPos;
-  document.getElementById('ls-wr').textContent=nPos>0?Math.round(wins/nPos*100)+'%':'0%';
 }
 
 function renderActiveBots(){
   const el=document.getElementById('active-list');
-  if(activeBots.filter(b=>b.status==='RUNNING').length===0){
-    el.innerHTML='<div style="text-align:center;padding:28px 0;color:var(--mu);font-family:Space Mono,monospace;font-size:11px">No active bots<br/><span style="font-size:10px">Go to ⬡ BOT tab to launch</span></div>';
+  if(!activeBots.filter(b=>b.status==='RUNNING').length){
+    el.innerHTML='<div style="text-align:center;padding:28px 0;color:var(--mu);font-family:Space Mono,monospace;font-size:11px">No active bots<br/><span style="font-size:10px">Launch from ⬡ BOT tab</span></div>';
   }else{
     el.innerHTML=activeBots.filter(b=>b.status==='RUNNING').map(bot=>{
       const u=bot.pnl>=0;
-      const tokCols=bot.tokens.slice(0,6).map(t=>`<span class="brc-tok" style="background:${t.col}18;border-color:${t.col}44;color:${t.col}">${t.s} ${t.dir==='LONG'?'▲':'▼'}</span>`).join('');
       return`<div class="bot-run-card">
-        <div class="brc-stripe" style="background:var(--gn)"></div>
+        <div class="brc-stripe" style="background:${bot.isReal?'var(--gn)':'var(--g)'}"></div>
         <div class="brc-hdr">
           <div>
-            <div class="brc-name" style="color:var(--g)">${bot.name}</div>
-            <div class="brc-pair" style="color:var(--mu)">${bot.tokens.length} tokens · ${bot.pdLabel} · ${bot.risk.toUpperCase()}</div>
+            <div class="brc-name" style="color:var(--g)">${bot.name} ${bot.isReal?'🟢':'🟡'}</div>
+            <div class="brc-pair">${bot.tokens.length} tokens · ${bot.pdLabel} · ${bot.isReal?'REAL':'DEMO'}</div>
           </div>
           <div class="brc-pnl">
             <div class="brc-pnl-v ${u?'up':'dn'}">${u?'+':''}$${Math.abs(bot.pnl).toFixed(2)}</div>
-            <div class="brc-pnl-l">LIVE P&L</div>
+            <div class="brc-pnl-l">P&L</div>
           </div>
         </div>
         <div class="brc-metrics">
           <div class="bm"><div class="bml">CAPITAL</div><div class="bmv" style="color:var(--g)">$${bot.capital}</div></div>
-          <div class="bm"><div class="bml">TRADES</div><div class="bmv" style="color:var(--tx)">${bot.totalTrades}</div></div>
+          <div class="bm"><div class="bml">TRADES</div><div class="bmv">${bot.totalTrades}</div></div>
           <div class="bm"><div class="bml">WINS</div><div class="bmv up">${bot.winTrades}</div></div>
-          <div class="bm"><div class="bml">SINCE</div><div class="bmv" style="color:var(--mu2);font-size:9px">${bot.startTime}</div></div>
+          <div class="bm"><div class="bml">SINCE</div><div class="bmv" style="font-size:9px;color:var(--mu2)">${bot.startTime}</div></div>
         </div>
-        <div class="brc-tokens">${tokCols}</div>
+        <div class="brc-tokens">${bot.tokens.slice(0,6).map(t=>`<span class="brc-tok" style="background:${t.col}18;border-color:${t.col}44;color:${t.col}">${t.s} ${t.dir==='LONG'?'▲':'▼'}</span>`).join('')}</div>
         <div class="brc-progress">
           <div style="display:flex;justify-content:space-between;margin-bottom:4px">
             <span style="font-family:'Space Mono',monospace;font-size:8px;color:var(--mu)">Period progress</span>
@@ -898,35 +1095,48 @@ function renderActiveBots(){
       </div>`;
     }).join('');
   }
-  // completed
   const cel=document.getElementById('completed-list');
   cel.innerHTML=completedBots.length?completedBots.slice().reverse().map(bot=>{
     const u=bot.pnl>=0;
     return`<div style="background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:11px 13px;margin-bottom:7px;opacity:.7">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
         <div style="font-size:13px;font-weight:800;color:var(--mu2)">${bot.name}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:${u?'var(--gn)':'var(--rd)'}">${u?'+':''}$${Math.abs(bot.pnl).toFixed(2)}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:13px;color:${u?'var(--gn)':'var(--rd)'}">${u?'+':''}$${Math.abs(bot.pnl).toFixed(2)}</div>
       </div>
-      <div style="display:flex;gap:6px">
-        <span style="font-family:'Space Mono',monospace;font-size:9px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:2px 8px;color:var(--mu2)">${bot.tokens.map(t=>t.s).join(' · ')}</span>
-      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--mu)">${bot.tokens.map(t=>t.s).join(' · ')}</div>
     </div>`;
-  }).join(''):'<div style="text-align:center;padding:14px 0;color:var(--mu);font-family:Space Mono,monospace;font-size:10px">No completed bots yet</div>';
+  }).join(''):'<div style="text-align:center;padding:14px 0;color:var(--mu);font-family:Space Mono,monospace;font-size:10px">No completed bots</div>';
 }
-function pauseBot(id){
-  const b=activeBots.find(x=>x.id===id);if(b)b.status='PAUSED';renderActiveBots();
-}
-function stopBot(id){
-  const b=activeBots.find(x=>x.id===id);
-  if(b){completedBots.push({...b,status:'COMPLETED'});activeBots=activeBots.filter(x=>x.id!==id);}
-  updateLiveStats();renderActiveBots();
-}
-function showBotDetail(id){
-  const b=activeBots.find(x=>x.id===id);if(!b)return;
-  alert(`Bot: ${b.name}\nTrades: ${b.totalTrades} open\nWins: ${b.winTrades}\nP&L: ${b.pnl>=0?'+':''}$${b.pnl.toFixed(2)}\nTokens: ${b.tokens.map(t=>t.s+' '+t.dir).join(', ')}`);
-}
+function pauseBot(id){const b=activeBots.find(x=>x.id===id);if(b)b.status='PAUSED';renderActiveBots();}
+function stopBot(id){const b=activeBots.find(x=>x.id===id);if(b){completedBots.push({...b});activeBots=activeBots.filter(x=>x.id!==id);}renderActiveBots();}
+function showBotDetail(id){const b=activeBots.find(x=>x.id===id);if(!b)return;alert(`${b.name}\n${b.isReal?'🟢 REAL':'🟡 DEMO'}\nTrades: ${b.totalTrades}\nWins: ${b.winTrades}\nP&L: ${b.pnl>=0?'+':''}$${b.pnl.toFixed(2)}\nTokens: ${b.tokens.map(t=>t.s+' '+t.dir).join(', ')}`);}
 
-// ── HEATMAP ────────────────────────────────────────────────────────────────────
+// ── PERIOD/CAPITAL/RISK/STRAT ─────────────────────────────────────────────────
+function renderPeriodGrid(){
+  document.getElementById('period-grid').innerHTML=PERIODS.filter(p=>p.main).map(p=>{
+    const s=scoreTokens(p.k);const top=s[0];
+    const n=TK.filter(t=>(t.pr[p.k]||0)>=(p.k==='h1'?.5:p.k==='h4'?1.5:3)).length;
+    return`<div class="pgrid-item ${selPeriod===p.k?'on':''}" onclick="setPeriod('${p.k}',this)">
+      <div class="pg-time">${p.l}</div>
+      <div class="pg-ret up">+${(top.pr[p.k]||0).toFixed(1)}% max</div>
+      <div class="pg-tok">${n} tokens</div>
+    </div>`;
+  }).join('');
+  document.getElementById('period-more').innerHTML=PERIODS.filter(p=>!p.main).map(p=>{
+    const top=TK.slice().sort((a,b)=>(b.pr[p.k]||0)-(a.pr[p.k]||0))[0];
+    return`<div class="pm-item ${selPeriod===p.k?'on':''}" onclick="setPeriod('${p.k}',this)">
+      <div class="pm-time">${p.l}</div>
+      <div class="pm-ret up">+${(top.pr[p.k]||0).toFixed(0)}% max</div>
+    </div>`;
+  }).join('');
+}
+function setPeriod(k,el){selPeriod=k;document.querySelectorAll('.pgrid-item,.pm-item').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function setCap(v,btn){capital=v;document.querySelectorAll('.cap-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.getElementById('cap-inp').value=v;}
+function setCapCustom(v){const n=parseFloat(v);if(n>0){capital=n;document.querySelectorAll('.cap-btn').forEach(b=>b.classList.remove('on'));}}
+function setRisk(r){risk=r;document.getElementById('rb-safe').className='risk-btn'+(r==='safe'?' on-safe':'');document.getElementById('rb-bal').className='risk-btn'+(r==='balanced'?' on-bal':'');document.getElementById('rb-agg').className='risk-btn'+(r==='aggressive'?' on-agg':'');}
+function setStrat(s,el){strategy=s;document.querySelectorAll('.strat-opt').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+
+// ── HEATMAP ───────────────────────────────────────────────────────────────────
 function setHM(m,btn){hmMode=m;document.querySelectorAll('#heat-chips .chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');renderHeatmap();}
 function renderHeatmap(){
   document.getElementById('heatmap').innerHTML=TK.map(t=>{
@@ -935,46 +1145,24 @@ function renderHeatmap(){
     else if(hmMode==='pr'){v=t.pr[selPeriod]||0;lbl=`+${v.toFixed(1)}%`;}
     else{v=t.sc-62;lbl=`${t.sc}`;}
     const[bg,fg]=HC(v);
-    return`<div class="hmc" style="background:${bg}" title="${t.n}">
-      <div class="hms" style="color:${fg}">${t.s}</div>
-      <div class="hmv" style="color:${fg}">${lbl}</div>
-    </div>`;
+    return`<div class="hmc" style="background:${bg}"><div class="hms" style="color:${fg}">${t.s}</div><div class="hmv" style="color:${fg}">${lbl}</div></div>`;
   }).join('');
 }
 
-// ── TICKER ─────────────────────────────────────────────────────────────────────
+// ── TICKER ────────────────────────────────────────────────────────────────────
 function renderTicker(){
   const h=TK.slice(0,10).map(t=>{const d=LP[t.s];const u=d.c>=0;
     return`<span class="ti"><span class="ts">${t.s}</span><span class="tp">${fp(d.p)}</span><span class="tc ${u?'up':'dn'}">${u?'▲':'▼'}${Math.abs(d.c).toFixed(1)}%</span></span>`;
   }).join('');
   document.getElementById('ticker').innerHTML=h+h;
 }
-
-// ── PRICE SIM ──────────────────────────────────────────────────────────────────
 function tick(){
   TK.forEach(t=>{const prev=LP[t.s].p;const n=prev+(Math.random()-.494)*(prev*.003);LP[t.s]={p:Math.max(n,prev*.98),c:((n-t.p)/t.p*100)};});
   renderTicker();
   if(document.getElementById('scr-heat').classList.contains('on'))renderHeatmap();
 }
 
-// ── CONNECT ────────────────────────────────────────────────────────────────────
-async function doConnect(){
-  const k=document.getElementById('in-key').value.trim();const s=document.getElementById('in-sec').value.trim();
-  const url=document.getElementById('in-url').value.trim();const msg=document.getElementById('conn-msg');
-  if(!k||!s){msg.innerHTML='<span style="color:var(--rd)">Enter both keys</span>';return;}
-  msg.innerHTML='<span style="color:var(--g)">⬡ Connecting...</span>';
-  await new Promise(r=>setTimeout(r,1500));
-  if(url){try{const res=await fetch(url+'/api/test');if(res.ok){const data=await res.json();if(data.connected){setConn(true);msg.innerHTML='<span style="color:var(--gn)">✓ LIVE — Real auto-trading enabled!</span>';return;}}}catch(e){}}
-  window._k=k;window._s=s;setConn(false);
-  msg.innerHTML='<span style="color:var(--g)">✓ Keys saved. Add backend URL for real execution. Demo mode active.</span>';
-}
-function setConn(real){
-  document.getElementById('conn-dot').style.background=real?'var(--gn)':'var(--g)';
-  document.getElementById('conn-txt').textContent=real?'LIVE':'DEMO';
-  document.getElementById('conn-txt').style.color=real?'var(--gn)':'var(--g)';
-}
-
-// ── CHAT ───────────────────────────────────────────────────────────────────────
+// ── CHAT ──────────────────────────────────────────────────────────────────────
 function appendMsg(m){
   const d=document.createElement('div');d.className='mrow '+m.role;
   d.innerHTML=`<div class="mav ${m.role==='assistant'?'bot':'user'}">${m.role==='assistant'?'⬡':'U'}</div><div class="bbl ${m.role==='assistant'?'bot':'user'}">${m.text}</div>`;
@@ -992,29 +1180,11 @@ async function sendChat(){
   document.getElementById('qrow').style.display='none';
   chatHist.push({role:'user',text:msg});appendMsg({role:'user',text:msg});showTyping();
   const pdLabel=PERIODS.find(p=>p.k===selPeriod)?.l||'12H';
-  const scored=scoreTokens(selPeriod).slice(0,6).map(t=>`${t.s}(score:${t.score.toFixed(1)},${pdLabel}:+${(t.pr[selPeriod]||0).toFixed(1)}%)`).join(', ');
+  const top6=scoreTokens(selPeriod).slice(0,6).map(t=>`${t.s}(+${(t.pr[selPeriod]||0).toFixed(1)}%,${fp(LP[t.s].p)})`).join(', ');
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',max_tokens:600,
-      system:`You are Binance AutoBot AI — autonomous trading advisor.
-
-Current settings: Period=${pdLabel}, Capital=$${capital}, Risk=${risk}, Strategy=${strategy}
-Top scored tokens for ${pdLabel}: ${scored}
-All tokens: BTC,SOL,ETH,TAO,ONDO,BNB,LINK,PENDLE,JTO,AVAX,ARB,HYPE,FET,UNI,INJ,AAVE,SUI,DOT,ANKR
-Market: Fear&Greed=18, BTC RSI=33 oversold. Extreme Fear = historically best buying window.
-
-Scoring logic:
-- Max Return: period_return × AI_score × 1.2 + momentum × 0.4
-- Risk-Adjusted: period_return / volatility × AI_score (Sharpe-like)
-- Momentum: RSI recovery + OI + volume spike
-- Diversified: best token per category (L1, L2, DeFi, AI, RWA)
-
-When recommending, always specify:
-• Exact tokens to buy, direction (LONG/SHORT), amount per token
-• Leverage per token based on risk level
-• Stop loss % and take profit % for each
-• Why each token fits the period/strategy
-Max 220 words. Bullets. End with risk warning.`,
+      model:'claude-sonnet-4-20250514',max_tokens:500,
+      system:`Binance AutoBot AI. Mode: ${IS_LIVE?'REAL TRADING':'DEMO'}. Period:${pdLabel}, Capital:$${capital}, Risk:${risk}, Strategy:${strategy}. Top tokens: ${top6}. F&G:18, BTC RSI:33. Give specific entry/SL/TP/amount advice. Max 180 words. Bullets.`,
       messages:chatHist.slice(-8).map(m=>({role:m.role==='user'?'user':'assistant',content:m.text}))
     })});
     const data=await r.json();const reply=data.content?.map(b=>b.text||'').join('')||'Error.';
@@ -1024,10 +1194,11 @@ Max 220 words. Bullets. End with risk warning.`,
 }
 function sq(btn){document.getElementById('chat-in').value=btn.textContent;sendChat();}
 
-// ── NAV ────────────────────────────────────────────────────────────────────────
+// ── NAV ───────────────────────────────────────────────────────────────────────
 function goTab(tab){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
-  document.getElementById('scr-chat').style.display='none';document.getElementById('scr-chat').classList.remove('on');
+  document.getElementById('scr-chat').style.display='none';
+  document.getElementById('scr-chat').classList.remove('on');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('nb-'+tab)?.classList.add('on');
   if(tab==='chat'){const cs=document.getElementById('scr-chat');cs.style.display='flex';cs.classList.add('on');if(!document.getElementById('cmsgs').children.length)chatHist.forEach(m=>appendMsg(m));}
@@ -1036,9 +1207,16 @@ function goTab(tab){
   if(tab==='active')renderActiveBots();
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 renderPeriodGrid();renderTicker();
 setInterval(tick,3000);
+
+// Auto-fill backend URL if previously saved
+const savedUrl=localStorage.getItem('backend_url');
+if(savedUrl){
+  document.getElementById('in-url').value=savedUrl;
+  BACKEND_URL=savedUrl;
+}
 </script>
 </body>
 </html>
