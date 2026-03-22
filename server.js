@@ -79,6 +79,7 @@ app.get('/api/balance', async (req, res) => {
   try {
     const r = await call('https://api.binance.com', '/api/v3/account', 'GET', {}, true);
     if (r.code) return res.json({ error: r.msg });
+    if (!r.balances) return res.json({ error: 'Balance unavailable', raw: JSON.stringify(r) });
     const bals = r.balances.filter(b => parseFloat(b.free) > 0 || parseFloat(b.locked) > 0)
       .map(b => ({ asset: b.asset, free: +b.free, locked: +b.locked, total: +b.free + +b.locked }));
     const usdt = bals.find(b => b.asset === 'USDT');
