@@ -6654,6 +6654,275 @@ window.addEventListener('beforeunload',()=>{
 setTimeout(()=>{if(typeof setNetwork==='function')setNetwork(USE_TESTNET);},100);
 const sk=localStorage.getItem('nx_key'),ss=localStorage.getItem('nx_sec');
 if(sk&&ss){document.getElementById('in-key').value=sk;document.getElementById('in-sec').value=ss;setTimeout(doConnect,1000);}
+// ════════════════════════════════════════════════════════════════════════
+//  NEXUS ADD-ONS — single paste-in bundle
+//  ----------------------------------------------------------------------
+//  SETUP (2 steps):
+//    1) Open index.html. Scroll to the very bottom and find the LAST
+//       </script> tag (the one just before </body>). Paste this ENTIRE
+//       file on the line directly ABOVE that </script>.
+//    2) Save index.html and reload the browser tab. Done.
+//
+//  No Render redeploy needed — server.js doesn't serve this file.
+//  Supersedes earlier snippets (nexus-reconcile-positions.js,
+//  nexus-reconcile.js, nexus-risk-guard.js, nexus-reset-defaults.js,
+//  nexus-defaults-button.js). Use ONLY this file — don't keep the others.
+//
+//  Provides:
+//    • reconcilePositions()  – sync open trades to Binance, adopt unknowns,
+//                              auto-attach a server stop to adopted ones,
+//                              close local orphans Binance no longer holds.
+//    • syncRealizedPnL()     – make closed-trade P&L match Binance's ledger.
+//    • risk guard            – confirm + warn when a slider is set to a
+//                              risky value (revert on cancel).
+//    • RESET now also restores config defaults (auto-hooked, only on a
+//      confirmed reset).
+//    • a "↺ RESTORE DEFAULT CONFIG (keep trades)" button next to RESET.
+//    • auto-wiring: 60s position sync, 5min ledger sync, first sync on
+//      connect — nothing else to wire.
+// ════════════════════════════════════════════════════════════════════════
+(function NEXUS_ADDONS() {
+'use strict';
+
+// ─────────────────────────── 1. RECONCILER ───────────────────────────────
+const RECON = { pendingClose: new Map(), running: false, lastRun: 0 };
+window.BINANCE_LEDGER = { realizedTotal: 0, commission: 0, funding: 0, net: 0, perSymbol: {}, matched: 0, unmatched: 0, lastSync: 0 };
+
+function _adoptedTradeDefaults(sym, dir, entry, qty, lev, uPnl, marginType, liq) {
+  return {
+    id: ++tradeId, sym, name: sym, col: 'var(--cy)',
+    entry, alloc: (entry * qty) / Math.max(1, lev || 1), notional: entry * qty, leverage: lev || 1,
+    direction: dir, marginMode: (marginType === 'isolated' ? 'ISOLATED' : 'CROSS'),
+    liqPrice: liq || 0, sl: 2, tp: 8, targetPct: 8,
+    pnlPct: 0, pnlUSD: uPnl || 0, pricePct: 0,
+    status: 'OPEN', qty, orderId: null, adopted: true,
+    ensemble: null,
+    aiEval: { action: 'HOLD', reason: 'Adopted from Binance during reconciliation.', conf: 50, color: 'var(--mu2)', urgent: false },
+    progress: 0, openTime: Date.now(), isReal: true,
+    bubble: null, rsi: null, funding: null, netflow: null, socialVol: null, mvrvZ: null,
+    entryContext: null, mfeROI: 0, maeROI: 0, mfeAtMin: 0, maeAtMin: 0, partialTakenAtMin: null,
+  };
+}
+
+async function _existingStopFor(sym) {
+  try {
+    const oo = await bnCall('/fapi/v1/openOrders', 'GET', { symbol: sym + 'USDT' }, true);
+    if (!Array.isArray(oo)) return null;
+    return oo.find(o =>
+      (o.type === 'STOP_MARKET' || o.type === 'STOP' || o.type === 'TRAILING_STOP_MARKET') &&
+      (o.reduceOnly === true || o.closePosition === true)) || null;
+  } catch (e) { return null; }
+}
+
+async function ensureStopForAdopted(tr) {
+  if (tr.stopOrderId) return;
+  const existing = await _existingStopFor(tr.sym);
+  if (existing) {
+    tr.stopOrderId = existing.orderId; tr.stopPrice = parseFloat(existing.stopPrice || 0);
+    logDecision('🛡', `RECONCILE: ${tr.sym} already protected by a server stop @ ${existing.stopPrice}`, 'var(--mu2)');
+    return;
+  }
+  tr.orderId = tr.orderId || ('adopt_' + tr.id);
+  tr.actualEntry = tr.actualEntry || tr.entry;
+  if (typeof placeServerSideStop === 'function') { try { await placeServerSideStop(tr); } catch (e) {} }
+}
+
+async function reconcilePositions() {
+  if (!IS_CONNECTED || RECON.running) return;
+  RECON.running = true;
+  try {
+    const raw = await bnCall('/fapi/v2/positionRisk', 'GET', {}, true);
+    if (!Array.isArray(raw)) return;                      // bad/cold-start read — never act
+    const live = new Map();
+    for (const p of raw) {
+      const amt = parseFloat(p.positionAmt || 0);
+      if (Math.abs(amt) < 1e-12) continue;
+      const sym = String(p.symbol || '').replace(/USDT$/, '');
+      live.set(sym, { amt, dir: amt > 0 ? 'LONG' : 'SHORT', entry: parseFloat(p.entryPrice || 0),
+        uPnl: parseFloat(p.unRealizedProfit || 0), lev: parseInt(p.leverage || 1, 10),
+        marginType: p.marginType, liq: parseFloat(p.liquidationPrice || 0) });
+    }
+    let closed = 0, adopted = 0;
+    // close orphans (2-pass confirmation so a transient read can't wipe the book)
+    for (const t of trades) {
+      if (t.status === 'CLOSED') continue;
+      const onB = live.get(t.sym);
+      if (onB && onB.dir === (t.direction || 'LONG')) { RECON.pendingClose.delete(t.id); continue; }
+      const n = (RECON.pendingClose.get(t.id) || 0) + 1; RECON.pendingClose.set(t.id, n);
+      if (n < 2) continue;
+      RECON.pendingClose.delete(t.id);
+      try { if (typeof cancelServerSideStop === 'function') await cancelServerSideStop(t); } catch (e) {}
+      try { archiveTrade(t); } catch (e) {}
+      t.status = 'CLOSED'; t.closedBy = 'RECONCILE'; closed++;
+      logDecision('🟦', `RECONCILE: ${t.direction || 'LONG'} ${t.sym} closed on Binance — synced to CLOSED`, 'var(--cy)');
+    }
+    // adopt unknowns + protect them
+    for (const [sym, p] of live) {
+      const known = trades.some(t => t.status !== 'CLOSED' && t.sym === sym && (t.direction || 'LONG') === p.dir);
+      if (known) continue;
+      const tr = _adoptedTradeDefaults(sym, p.dir, p.entry, Math.abs(p.amt), p.lev, p.uPnl, p.marginType, p.liq);
+      trades.push(tr); adopted++;
+      logDecision('🟩', `RECONCILE: adopted ${p.dir} ${sym} (entry ${p.entry}, qty ${Math.abs(p.amt)})`, 'var(--g)');
+      await ensureStopForAdopted(tr);
+    }
+    if (closed || adopted) {
+      saveTrades();
+      try { renderTrades(); updateBadge(); updatePortSum(); } catch (e) {}
+      if (typeof toast === 'function') toast(`Reconciled: ${adopted} adopted, ${closed} closed`, 'info', 4000);
+    }
+    if (closed) { try { await syncRealizedPnL(); } catch (e) {} }
+    RECON.lastRun = Date.now();
+  } catch (e) {
+    if (typeof logDecision === 'function') logDecision('⚠', `Reconcile error: ${e.message}`, 'var(--or)');
+  } finally { RECON.running = false; }
+}
+window.reconcilePositions = reconcilePositions;
+
+async function syncRealizedPnL() {
+  if (!IS_CONNECTED) return;
+  try {
+    const pull = (type) => bnCall('/fapi/v1/income', 'GET', { incomeType: type, limit: 1000 }, true);
+    const [rp, comm, fund] = await Promise.all([pull('REALIZED_PNL'), pull('COMMISSION'), pull('FUNDING_FEE')]);
+    if (!Array.isArray(rp)) return;
+    const L = window.BINANCE_LEDGER;
+    const sum = (a) => Array.isArray(a) ? a.reduce((s, x) => s + parseFloat(x.income || 0), 0) : 0;
+    L.realizedTotal = sum(rp); L.commission = sum(comm); L.funding = sum(fund);
+    L.net = L.realizedTotal + L.commission + L.funding; L.perSymbol = {};
+    for (const r of rp) { const s = String(r.symbol || '').replace(/USDT$/, ''); L.perSymbol[s] = (L.perSymbol[s] || 0) + parseFloat(r.income || 0); }
+    const rows = rp.map(r => ({ sym: String(r.symbol || '').replace(/USDT$/, ''), amt: parseFloat(r.income || 0), time: +r.time })).sort((a, b) => a.time - b.time);
+    const used = new Array(rows.length).fill(false);
+    const reals = closedTrades.filter(t => t.isReal && t.closeTime).sort((a, b) => a.closeTime - b.closeTime);
+    const prevClose = {}; let matched = 0;
+    for (const t of reals) {
+      const lo = prevClose[t.sym] != null ? prevClose[t.sym] : (t.openTime || 0);
+      const hi = t.closeTime + 5 * 60 * 1000; let acc = 0, hit = false;
+      for (let i = 0; i < rows.length; i++) {
+        if (used[i] || rows[i].sym !== t.sym) continue;
+        if (rows[i].time > lo && rows[i].time <= hi) { acc += rows[i].amt; used[i] = true; hit = true; }
+      }
+      if (hit) { t.pnlUSD = +acc.toFixed(2); if (t.alloc > 0) t.pnlPct = +(acc / t.alloc * 100).toFixed(2); t.pnlSource = 'binance'; matched++; }
+      prevClose[t.sym] = t.closeTime;
+    }
+    L.matched = matched; L.unmatched = used.filter(u => !u).length; L.lastSync = Date.now();
+    try { saveTrades(); } catch (e) {}
+    try { if (typeof renderHistory === 'function') renderHistory(); } catch (e) {}
+    try { updatePortSum(); } catch (e) {}
+    const net = L.net;
+    logDecision('📒', `LEDGER SYNC: realized ${L.realizedTotal >= 0 ? '+' : ''}$${L.realizedTotal.toFixed(2)} · net ${net >= 0 ? '+' : ''}$${net.toFixed(2)} · ${matched} matched, ${L.unmatched} unmatched`, net >= 0 ? 'var(--g)' : 'var(--rd)');
+    if (typeof toast === 'function') toast(`Binance net P&L: ${net >= 0 ? '+' : ''}$${net.toFixed(2)}`, net >= 0 ? 'success' : 'warning', 4000);
+  } catch (e) {
+    if (typeof logDecision === 'function') logDecision('⚠', `Ledger sync error: ${e.message}`, 'var(--or)');
+  }
+}
+window.syncRealizedPnL = syncRealizedPnL;
+
+// ─────────────────────────── 2. RISK GUARD ───────────────────────────────
+(function installRiskGuard() {
+  if (typeof window.updateSlider !== 'function') { console.warn('[risk-guard] updateSlider not found'); return; }
+  const RISK_RULES = {
+    lev:        { test: v => v > 10,  msg: v => `Leverage ${v}× is high. A small adverse move can wipe most of a position's margin.` },
+    sl:         { test: v => v > 5,   msg: v => `Stop loss ${v}% is wide. At your leverage this is a large per-trade loss before the stop triggers.` },
+    risktrade:  { test: v => v > 2,   msg: v => `Risk-per-trade ${v}% is aggressive. Above ~2% a short losing streak draws down the account fast.` },
+    pyramid:    { test: v => v >= 3,  msg: () => `Pyramid set to EXTREME (2.5× add-ons). Stacks hard into winners and magnifies reversals.` },
+    maxcomb:    { test: v => v >= 5,  msg: v => `Max combined notional ${v}× original lets a pyramided position grow very large vs its entry size.` },
+    maxlosspct: { test: v => v > 35,  msg: v => `Max drawdown ${v}% from peak is very loose — the engine won't lock until you're down ${v}%.` },
+  };
+  const lastSafe = {}, confirmed = {}, timers = {};
+  const sliderFor = (k) => [...document.querySelectorAll('input[type=range]')].find(el => (el.getAttribute('oninput') || '').includes(`'${k}'`)) || null;
+  Object.keys(RISK_RULES).forEach(k => { const el = sliderFor(k); if (el) lastSafe[k] = el.value; });
+  const _orig = window.updateSlider;
+  window.updateSlider = function (k, v) {
+    _orig(k, v);
+    const rule = RISK_RULES[k]; if (!rule) return;
+    clearTimeout(timers[k]);
+    timers[k] = setTimeout(() => {
+      const num = parseFloat(v);
+      if (!rule.test(num)) { lastSafe[k] = v; confirmed[k] = undefined; return; }
+      if (String(confirmed[k]) === String(v)) return;
+      const ok = window.confirm(`⚠️ RISKY SETTING\n\n${rule.msg(num)}\n\nKeep this value? (Cancel reverts to ${lastSafe[k] != null ? lastSafe[k] : 'the previous value'}.)`);
+      if (ok) {
+        confirmed[k] = v; lastSafe[k] = v;
+        if (typeof logDecision === 'function') logDecision('⚠', `RISK OVERRIDE: ${k} set to ${v} and confirmed.`, 'var(--or)');
+        if (typeof toast === 'function') toast(`Risky ${k} (${v}) confirmed`, 'warning', 3500);
+      } else {
+        const revertTo = lastSafe[k] != null ? lastSafe[k] : v;
+        const el = sliderFor(k); if (el) el.value = revertTo;
+        _orig(k, revertTo);
+        if (typeof logDecision === 'function') logDecision('↩', `RISK REVERT: ${k} change to ${v} cancelled — restored ${revertTo}.`, 'var(--cy)');
+        if (typeof toast === 'function') toast(`${k} reverted to ${revertTo}`, 'info', 3000);
+      }
+    }, 450);
+  };
+  console.log('[risk-guard] active:', Object.keys(RISK_RULES).join(', '));
+})();
+
+// ───────────────────── 3. RESET CONFIG TO DEFAULTS ────────────────────────
+function resetConfigToDefaults() {
+  let n = 0;
+  document.querySelectorAll('input[type=range]').forEach(el => {
+    const h = el.getAttribute('oninput') || ''; const def = el.getAttribute('value');
+    if (def == null) return; el.value = def; let m;
+    if ((m = h.match(/updateSlider\('([^']+)'/))) updateSlider(m[1], def);
+    else if ((m = h.match(/updateWeight\('([^']+)'/))) updateWeight(m[1], def);
+    else if (/setUniverseSize\(/.test(h) && typeof setUniverseSize === 'function') setUniverseSize(def);
+    else return;
+    n++;
+  });
+  try { if (typeof updateEnsBar === 'function') updateEnsBar(); } catch (e) {}
+  try { if (typeof updateAutoBar === 'function') updateAutoBar(); } catch (e) {}
+  try { if (typeof updatePortSum === 'function') updatePortSum(); } catch (e) {}
+  try { if (typeof updatePortfolioUI === 'function') updatePortfolioUI(); } catch (e) {}
+  if (typeof logDecision === 'function') logDecision('↺', `Config restored to defaults (${n} sliders).`, 'var(--cy)');
+  if (typeof toast === 'function') toast(`Config restored to defaults (${n} settings)`, 'info', 3000);
+  return n;
+}
+window.resetConfigToDefaults = resetConfigToDefaults;
+
+// ───── 4. AUTO-HOOK: RESET ENGINE STATE also restores config defaults ─────
+// Uses PORTFOLIO.dailyResetAt as a sentinel: the original sets it to a fresh
+// timestamp only when the user CONFIRMS the reset, and never on cancel.
+if (typeof window.resetEngineState === 'function') {
+  const _origReset = window.resetEngineState;
+  window.resetEngineState = function () {
+    const before = (typeof PORTFOLIO !== 'undefined') ? PORTFOLIO.dailyResetAt : null;
+    _origReset.apply(this, arguments);
+    const proceeded = (typeof PORTFOLIO !== 'undefined') && PORTFOLIO.dailyResetAt !== before;
+    if (proceeded) { try { resetConfigToDefaults(); } catch (e) {} }
+  };
+  console.log('[reset-hook] RESET now also restores config defaults');
+}
+
+// ───────────────── 5. "↺ RESTORE DEFAULT CONFIG" BUTTON ───────────────────
+(function addDefaultsButton() {
+  if (document.getElementById('reset-config-btn')) return;
+  const anchor = document.getElementById('reset-engine-btn');
+  if (!anchor) { console.warn('[defaults-btn] reset-engine-btn not found'); return; }
+  window.confirmResetDefaults = function () {
+    if (typeof resetConfigToDefaults !== 'function') return;
+    if (!confirm('↺ RESTORE DEFAULT CONFIG\n\nResets all sliders (leverage, capital, stops, weights, limits…) to defaults.\n\nDoes NOT touch trades, P&L, guards, or API keys.\n\nProceed?')) return;
+    resetConfigToDefaults();
+  };
+  const btn = document.createElement('button');
+  btn.id = 'reset-config-btn'; btn.className = 'launch-btn';
+  btn.setAttribute('onclick', 'confirmResetDefaults()');
+  btn.style.cssText = 'margin-top:6px;border-color:rgba(0,229,255,.4);color:var(--cy);background:rgba(0,229,255,.04);font-size:9px';
+  btn.textContent = '↺ RESTORE DEFAULT CONFIG (keep trades)';
+  anchor.insertAdjacentElement('afterend', btn);
+  console.log('[defaults-btn] added');
+})();
+
+// ─────────────────────────── 6. AUTO-WIRING ──────────────────────────────
+setInterval(reconcilePositions, 60 * 1000);      // position sync every 60s
+setInterval(syncRealizedPnL, 5 * 60 * 1000);     // ledger sync every 5 min
+let _wasConnected = false;                        // first sync when you connect
+setInterval(() => {
+  if (typeof IS_CONNECTED === 'undefined') return;
+  if (IS_CONNECTED && !_wasConnected) { _wasConnected = true; setTimeout(() => { reconcilePositions(); syncRealizedPnL(); }, 3000); }
+  else if (!IS_CONNECTED) _wasConnected = false;
+}, 5000);
+
+console.log('%c[NEXUS ADD-ONS] loaded ✓', 'color:#0e9;font-weight:bold');
+})();
 </script>
 </body>
 </html>
